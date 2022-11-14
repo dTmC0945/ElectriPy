@@ -64,6 +64,16 @@ class Inductance:
         self.init = self
 
     @staticmethod
+    def Energy(L, I):
+        """ Calculates the energy stored in an inductor
+
+        :param L: magnetic inductance (H)
+        :param I: electric current (I)
+        :return: stored energy in the inductor (J)
+        """
+        return L * pow(I, 2) / 2  # calculates the energy stored in an inductor.
+
+    @staticmethod
     def solenoid(N, Area, length):
         return c.mu0 * pow(N, 2) * Area / length
 
@@ -121,6 +131,23 @@ class ElectricCircuits:
 
     def __int__(self):
         self.init = self
+
+    @staticmethod
+    def rlcCircuitSeries(R, L, C, f):
+        """ Analysis of RLC Circuit
+
+        :param R: Electric Resistance (Ohm)
+        :param L: Magnetic Inductance (H)
+        :param C: Electric Capacitance (F)
+        :param f: frequency
+        :return: power factor, quality factor, resonance angular frequency, impedance
+        """
+        pf = R / m.root(pow(R, 2) + pow(2 * c.pi * f * L - 1 / (2 * c.pi * f * C), 2), 2)  # power factor
+        omega = 1 / m.root(L * C, 2)  # resonance angular frequency
+        Q = m.root(L / C, 2) / R  # quality factor
+        Z = m.root(pow(R, 2) + pow(omega * L - 1 / (omega * C), 2), 2)
+
+        return pf, Q, omega, Z
 
 
 def rc_circuit(V_in, t, R, C):
@@ -209,13 +236,13 @@ def buckConverter(V_out, V_in, I_out, f_sw, V_f, R_DS_on, *args):
     I_RMS = m.root(
         (V_out + V_f) / (V_in - V_R_DS_on) * (pow(I_peak, 2) - (I_peak * I_pp_ripple) + (pow(I_pp_ripple, 2) / 3)), 2)
 
-    P_cond = R_DS_on * pow(I_RMS, 2)  # the conduction losses occuring on the switch during on state (W)
+    P_cond = R_DS_on * pow(I_RMS, 2)  # the conduction losses occurring on the switch during on state (W)
 
     V_DC_block = V_in  # DC blocking voltage (V)
     I_avg = I_out * (1 - Duty)  # Average rectified output current (A)
     V_DS_min = (V_in + V_f) + 5  # minimum rated drain-to-source voltage (V)
 
-    I_RMS_C = I_pp_ripple / m.root(12, 2) # Output capacitor RMS ripple current
+    I_RMS_C = I_pp_ripple / m.root(12, 2)  # Output capacitor RMS ripple current
     C_out_min = (I_pp_ripple * T) / (8 * V_pp_ripple)
 
     if not args:
@@ -230,6 +257,17 @@ def buckConverter(V_out, V_in, I_out, f_sw, V_f, R_DS_on, *args):
         print("The average rectified output current is: ", I_avg, "A")
         print("The Duty Cycle is:", Duty)
         print("The output capacitor RMS ripple current is:", I_RMS_C, "A")
-        print("The minimum output capacitance is:", C_out_min * pow(10, 6)," muF")
+        print("The minimum output capacitance is:", C_out_min * pow(10, 6), " muF")
     else:
         raise ValueError("The argument can only be Print")
+
+
+def diodeEquation(I_0, V, T):
+    """Calculated the current passing through a diode during operation.
+
+    :param I_0: "dark saturation current", the diode leakage current density in the absence of light. (A)
+    :param V: applied voltage across the terminals of the diode (V)
+    :param T: absolute temperature (K)
+    :return: the net current flowing through the diode (I).
+    """
+    return I_0 * (m.exp(c.q * V / (c.BoltzmannConstant().J_per_K() * T)) - 1)

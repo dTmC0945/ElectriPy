@@ -5,6 +5,8 @@ mu0 = 4 * pi * 1.00000000055 * pow(10, -7)  # H/m
 epsilon0 = 8.8541878128 * pow(10, -12)  # F / m-1
 euler = 2.718281828459045235360287471352
 c = 299792458  # metres per second
+e = 1.602176634 * pow(10, -19)  # the electric charge carried by a single proton or,
+# equivalently, the magnitude of the negative electric charge carried by a single electron (C)
 
 
 class BoltzmannConstant():
@@ -26,7 +28,6 @@ class BoltzmannConstant():
     @staticmethod
     def erg_per_K():
         return 1.380649 * pow(10, -16)
-
 
 
 @staticmethod
