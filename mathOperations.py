@@ -1,5 +1,6 @@
 from constants import *
 
+
 def ln(x):
     n = 1000.0
     return n * ((x ** (1 / n)) - 1)
@@ -30,8 +31,7 @@ def factorial(n):
 def sin(theta):
     """ Generates the sin value of the entered value
     :param theta: the angle
-    :return: returns the sine of the entered value
-    """
+    :return: returns the sine of the entered value"""
     return infiniteSum(lambda x: pow(-1, x) * pow(theta, 1 + 2 * x) / factorial(1 + 2 * x))
 
 
@@ -132,6 +132,14 @@ def riemannZeta(s):
 
 
 def integrate(f, a, b, dx=0.1):
+    """ Does numerical integration. Fairly accurate. Wouldn't trust more than the 7th decimal
+
+    :param f: Function (i.e., lambda x: x)
+    :param a: lower bound
+    :param b: upper bound
+    :param dx: the size of the rectangles used to calculate the area under the curve
+    :return: the integral value.
+    """
     i = a
     s = 0
     while i <= b:
@@ -186,12 +194,17 @@ def phasor(A, theta, *args):
 
 
 def ramanujanPi():
+    """Calculates the value of pi using the Ramanujan approximation using infinite sum. Takes no value.
+    You may ask why ? I say why not ? Is it useful... nope"""
     return 1 / (infiniteSum(
         lambda k: factorial(4 * k) * (1103 + 26390 * k) / (pow((factorial(k)), 4) * pow(396, 4 * k))) * 2 * root(2,
                                                                                                                  2) / 9801)
 
 
 def exp(x):
+    """Produces the exponential value of the entered value x
+
+    :param x: takes a value"""
     return pow(euler, x)
 
 
