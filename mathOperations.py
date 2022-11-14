@@ -1,5 +1,6 @@
 from constants import *
 
+
 # LOGARITHM CALCULATIONS -----------------------------------------------------------------------------------------------
 
 def ln(x):
@@ -57,33 +58,106 @@ def factorial(n):
     return fact
 
 
-# Approximating Trigonometric identities
-def sin(theta):
-    """ Generates the sin value of the entered value
-    :param theta: the angle
-    :return: returns the sine of the entered value"""
-    return infiniteSum(lambda x: pow(-1, x) * pow(theta, 1 + 2 * x) / factorial(1 + 2 * x))
+# TRIGONOMETRIC IDENTITIES ---------------------------------------------------------------------------------------------
+def sin(theta, *args):
+    """ Generates the sin value of the entered value.
+
+    :param theta: takes angle (can be degree or radian based on argument). If no argument is given,
+    the angle is assumed radian.
+    :param args: "Degree", "Radian"
+    :return: sine value"""
+    if not args:
+        return infiniteSum(lambda x: pow(-1, x) * pow(theta, 1 + 2 * x) / factorial(1 + 2 * x))
+    elif args[0] == 'Degree':
+        return infiniteSum(
+            lambda x: pow(-1, x) * pow(theta * pi / 180, 1 + 2 * x) / factorial(1 + 2 * x))
+    elif args[0] == 'Radian':
+        return infiniteSum(lambda x: pow(-1, x) * pow(theta, 1 + 2 * x) / factorial(1 + 2 * x))
+    else:
+        raise ValueError("The arguments can either be Degree or Radian.")
 
 
-def cos(theta):
-    return infiniteSum(lambda x: pow(-1, x) * pow(theta, 2 * x) / factorial(2 * x))
+def cos(theta, *args):
+    """ Generates the cos value of the entered value.
+
+        :param theta: takes angle (can be degree or radian based on argument). If no argument is given,
+        the angle is assumed radian.
+        :param args: "Degree", "Radian"
+        :return: cos value"""
+    if not args:
+        return infiniteSum(lambda x: pow(-1, x) * pow(theta, 2 * x) / factorial(2 * x))
+    elif args[0] == 'Degree':
+        return infiniteSum(lambda x: pow(-1, x) * pow(theta * pi / 180, 2 * x) / factorial(2 * x))
+    elif args[0] == 'Radian':
+        return infiniteSum(lambda x: pow(-1, x) * pow(theta, 2 * x) / factorial(2 * x))
+    else:
+        raise ValueError("The arguments can either be Degree or Radian.")
 
 
-def tan(theta):
-    return sin(theta) / cos(theta)
+def tan(theta, *args):
+    """ Generates the tan value of the entered value.
+
+    :param theta: takes angle (can be degree or radian based on argument). If no argument is given,
+    the angle is assumed radian.
+    :param args: "Degree", "Radian"
+    :return: tan value.
+    """
+    if not args:
+        return sin(theta) / cos(theta)
+    elif args[0] == "Degree":
+        return sin(theta, "Degree") / cos(theta, "Degree")
+    elif args[0] == "Radian":
+        return sin(theta, "Radian") / cos(theta, "Radian")
 
 
-def cot(theta):
-    return cos(theta) / sin(theta)
+def cot(theta, *args):
+    """ Generates the cot value of the entered value.
+
+       :param theta: takes angle (can be degree or radian based on argument). If no argument is given, the angle is assumed
+           radian.
+       :param args: "Degree", "Radian"
+       :return: cot value.
+       """
+    if not args:
+        return cos(theta) / sin(theta)
+    elif args[0] == "Degree":
+        return cos(theta, "Degree") / sin(theta, "Degree")
+    elif args[0] == "Radian":
+        return cos(theta, "Radian") / sin(theta, "Radian")
 
 
-def sec(theta):
-    return 1 / cos(theta)
+def sec(theta, *args):
+    """ Generates the secant value of the entered value.
+
+       :param theta: takes angle (can be degree or radian based on argument). If no argument is given, the angle is assumed
+           radian.
+       :param args: "Degree", "Radian"
+       :return: secant value.
+       """
+    if not args:
+        return 1 / cos(theta)
+    elif args[0] == "Degree":
+        return 1 / cos(theta, "Degree")
+    elif args[0] == "Radian":
+        return 1 / cos(theta, "Radian")
 
 
-def cosec(theta):
-    return 1 / sin(theta)
+def csc(theta, *args):
+    """ Generates the cosecant value of the entered value.
 
+       :param theta: takes angle (can be degree or radian based on argument). If no argument is given, the angle is assumed
+           radian.
+       :param args: "Degree", "Radian"
+       :return: cosecant value.
+       """
+    if not args:
+        return 1 / sin(theta)
+    elif args[0] == "Degree":
+        return 1 / sin(theta, "Degree")
+    elif args[0] == "Radian":
+        return 1 / sin(theta, "Radian")
+
+# INVERSE TRIGONOMETRIC IDENTITIES -------------------------------------------------------------------------------------
 
 def root(num, root):
     global result
