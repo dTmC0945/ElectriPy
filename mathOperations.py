@@ -1,13 +1,43 @@
 from constants import *
 
+# LOGARITHM CALCULATIONS -----------------------------------------------------------------------------------------------
 
 def ln(x):
-    n = 1000.0
-    return n * ((x ** (1 / n)) - 1)
+    """ Calculates the natural logarithm of the entered value x. Calculates numerically.
+
+    :param x: Entered value
+    :return: the natural logarithm of the number
+    """
+    n = 1000.0  # set precision. Higher better but will impact performance.
+    return n * ((x ** (1 / n)) - 1)  # numerically calculates the natural logarithms of x.
 
 
 def log10(x):
-    return ln(x) / ln(10)
+    """ Calculates the common logarithm of the entered value x. Calculates numerically.
+
+        :param x: Entered value
+        :return: the common logarithm of the number
+        """
+    return ln(x) / ln(10)  # numerically calculates the common logarithms of x. Dependent on ln(x) function.
+
+
+def log2(x):
+    """ Calculates the binary logarithm of the entered value x. Calculates numerically.
+
+        :param x: Entered value
+        :return: the binary logarithm of the number
+        """
+    return ln(x) / ln(2)  # numerically calculates the binary logarithms of x. Dependent on ln(x) function.
+
+
+def logb(base, x):
+    """ Calculates the logarithm base b of the entered value x. Calculates numerically.
+
+        :param base: base of the logarithm value
+        :param x: Entered value
+        :return: the logarithm of the number
+        """
+    return ln(x) / ln(base)  # numerically calculates the logarithm base b of x. Dependent on ln(x) function.
 
 
 def infiniteSum(x):
