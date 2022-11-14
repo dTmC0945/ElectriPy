@@ -320,24 +320,6 @@ def erfc(z):
     return 1 - erf(z)
 
 
-def phasor(A, theta, *args):
-    """Calculate the phasor value. When no argument is set Radian is taken as default.
-
-    :param A: takes magnitude
-    :param theta: takes angle (can be degree or radian based on argument)
-    :param args: "Degree", "Radian"
-    :return: complex value"""
-
-    if not args:
-        return complex(A * cos(theta), A * sin(theta))
-    elif args[0] == 'Degree':
-        return complex(A * cos(theta * pi / 180), A * sin(theta * pi / 180))
-    elif args[0] == 'Radian':
-        return complex(A * cos(theta), A * sin(theta))
-    else:
-        raise ValueError("The arguments can either be Degree or Radian.")
-
-
 def ramanujanPi():
     """Calculates the value of pi using the Ramanujan approximation using infinite sum. Takes no value.
     You may ask why ? I say why not ? Is it useful... nope"""
@@ -370,3 +352,21 @@ def complex2polar(z, *args):
     else:
         raise ValueError("The arguments can either be Degree or Radian.")
     return polar
+
+
+def polar2complex(A, theta, *args):
+    """Calculate the phasor value. When no argument is set Radian is taken as default.
+
+    :param A: takes magnitude
+    :param theta: takes angle (can be degree or radian based on argument)
+    :param args: "Degree", "Radian"
+    :return: complex value"""
+
+    if not args:
+        return complex(A * cos(theta), A * sin(theta))
+    elif args[0] == 'Degree':
+        return complex(A * cos(theta * pi / 180), A * sin(theta * pi / 180))
+    elif args[0] == 'Radian':
+        return complex(A * cos(theta), A * sin(theta))
+    else:
+        raise ValueError("The arguments can either be Degree or Radian.")
