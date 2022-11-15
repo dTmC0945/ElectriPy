@@ -268,4 +268,6 @@ def diodeEquation(I_0, V, T):
     :param T: absolute temperature (K)
     :return: the net current flowing through the diode (I).
     """
-    return I_0 * (exp(c.q * V / (c.BoltzmannConstant().J_per_K() * T)) - 1)
+    return I_0 * (exp(q * V / (BoltzmannConstant().J_per_K() * T)) - 1)
+
+def deltaConnection(array, Z_total)

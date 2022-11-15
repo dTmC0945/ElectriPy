@@ -419,3 +419,10 @@ def parkTransform(omega, t):
               [-sin(omega * t), -sin(omega * t - 2 * pi / 3), -sin(omega * t + 2 * pi / 3)],
               [0.5, 0.5, 0.5]]
     return scalarMultiply(scalar, matrix)
+
+def mean(array):
+    return sum(array) / len(array)
+
+
+def var(array):
+    return sum((i - mean(array)) ** 2 for i in array) / len(array)
