@@ -36,7 +36,3 @@ class Resistor(object):
     def __init__(self, R):
         self.R = R
 
-    def vform(self, array):
-        output = zeroMatrix(1, len(array))
-
-        for i in range(array):
