@@ -1,4 +1,4 @@
-from __init__ import *
+from .__init__ import *
 # Constants
 
 pi = 3.14159265358979323846  # the ratio of a circle's circumference to its diameter
@@ -37,9 +37,3 @@ class BoltzmannConstant():
 def convert_SI(val, unit_in, unit_out):
     SI = {'mm': 0.001, 'cm': 0.01, 'm': 1.0, 'km': 1000.}
     return val * SI[unit_in] / SI[unit_out]
-
-
-def rotatingFrame(omega, t):
-    return [[cos(omega * t), cos(omega * t - 2 * pi / 3), cos(omega * t + 2 * pi / 3)],
-            [-sin(omega * t), -sin(omega * t - 2 * pi / 3), -sin(omega * t + 2 * pi / 3)],
-            [0.5, 0.5, 0.5]]

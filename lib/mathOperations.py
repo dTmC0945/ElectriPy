@@ -1,4 +1,4 @@
-from __init__ import *
+from .__init__ import *
 
 
 # LOGARITHM CALCULATIONS -----------------------------------------------------------------------------------------------
@@ -320,7 +320,7 @@ def erfc(z):
     return 1 - erf(z)
 
 
-def ramanujanPi(): # check the code. Something doesn't work
+def ramanujanPi():  # check the code. Something doesn't work
     """Calculates the value of pi using the Ramanujan approximation using infinite sum. Takes no value.
     You may ask why ? I say why not ? Is it useful... nope"""
     inv = infiniteSum(lambda k: factorial(4 * k) * (1103 + 26390 * k) / (pow((factorial(k)), 4) * pow(396, 4 * k)))
@@ -369,3 +369,22 @@ def polar2complex(A, theta, *args):
         return complex(A * cos(theta), A * sin(theta))
     else:
         raise ValueError("The arguments can either be Degree or Radian.")
+
+
+def aMult(a, array):
+    return [x * a for x in array]
+
+
+def zeroMatrix(rows, cols):
+    return [[0 for i in range(cols)] for j in range(rows)]
+
+
+def oneMatrix(rows, cols):
+    return [[1 for i in range(cols)] for j in range(rows)]
+
+def parkTransform(omega, t):
+    scalar = 2 / 3
+    matrix = [[cos(omega * t), cos(omega * t - 2 * pi / 3), cos(omega * t + 2 * pi / 3)],
+              [-sin(omega * t), -sin(omega * t - 2 * pi / 3), -sin(omega * t + 2 * pi / 3)],
+              [0.5, 0.5, 0.5]]
+    return aMult(scalar, matrix)
