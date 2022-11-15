@@ -1,4 +1,4 @@
-from constants import *
+from __init__ import *
 
 
 # LOGARITHM CALCULATIONS -----------------------------------------------------------------------------------------------
@@ -320,12 +320,11 @@ def erfc(z):
     return 1 - erf(z)
 
 
-def ramanujanPi():
+def ramanujanPi(): # check the code. Something doesn't work
     """Calculates the value of pi using the Ramanujan approximation using infinite sum. Takes no value.
     You may ask why ? I say why not ? Is it useful... nope"""
-    return 1 / (infiniteSum(
-        lambda k: factorial(4 * k) * (1103 + 26390 * k) /
-                  (pow((factorial(k)), 4) * pow(396, 4 * k))) * 2 * root(2, 2) / 9801)
+    inv = infiniteSum(lambda k: factorial(4 * k) * (1103 + 26390 * k) / (pow((factorial(k)), 4) * pow(396, 4 * k)))
+    return 1 / inv * 2 * root(2, 2) / 9801
 
 
 def exp(x):

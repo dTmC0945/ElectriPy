@@ -1,6 +1,4 @@
-import constants as c
-import mathOperations as m
-
+from __init__ import *
 
 class Resistance:
 
@@ -64,14 +62,14 @@ class Inductance:
         self.init = self
 
     @staticmethod
-    def Energy(L, I):
+    def Energy(L, i):
         """ Calculates the energy stored in an inductor
 
         :param L: magnetic inductance (H)
-        :param I: electric current (I)
+        :param i: electric current (I)
         :return: stored energy in the inductor (J)
         """
-        return L * pow(I, 2) / 2  # calculates the energy stored in an inductor.
+        return L * pow(i, 2) / 2  # calculates the energy stored in an inductor.
 
     @staticmethod
     def solenoid(N, Area, length):
@@ -83,7 +81,7 @@ class Inductance:
         # a: Inner conductors radius
         # length: Length
         # mu0: permeability of free space
-        return c.mu0 / (2 * c.pi) * length * m.ln(b / a)
+        return mu0 / (2 * pi) * length * ln(b / a)
 
     @staticmethod
     def reactance(omega, L):
@@ -111,20 +109,20 @@ class Capacitance:
     def concentricCylinders(epsilonr, length, R1, R2):
         epsilon = epsilonr * c.epsilon0
 
-        return 2 * c.pi * epsilon * length / m.ln(R2 / R1)
+        return 2 * c.pi * epsilon * length / ln(R2 / R1)
 
     @staticmethod
     def eccentricCylinders(epsilonr, length, R1, R2, distance):
         epsilon = epsilonr * c.epsilon0
 
         return 2 * c.pi * epsilon * length \
-               / m.arccosh((pow(R1, 2) + pow(R2, 2) - pow(distance, 2)) / (2 * R1 * R2))
+               / arcosh((pow(R1, 2) + pow(R2, 2) - pow(distance, 2)) / (2 * R1 * R2))
 
     @staticmethod
     def pairOfParallelWires(epsilonr, length, distance, wireRadius):
         epsilon = epsilonr * c.epsilon0
 
-        return c.pi * epsilon * length / m.arcosh(distance / (2 * wireRadius))
+        return c.pi * epsilon * length / arcosh(distance / (2 * wireRadius))
 
 
 class ElectricCircuits:
@@ -142,16 +140,16 @@ class ElectricCircuits:
         :param f: frequency
         :return: power factor, quality factor, resonance angular frequency, impedance
         """
-        pf = R / m.root(pow(R, 2) + pow(2 * c.pi * f * L - 1 / (2 * c.pi * f * C), 2), 2)  # power factor
-        omega = 1 / m.root(L * C, 2)  # resonance angular frequency
-        Q = m.root(L / C, 2) / R  # quality factor
-        Z = m.root(pow(R, 2) + pow(omega * L - 1 / (omega * C), 2), 2)
+        pf = R / root(pow(R, 2) + pow(2 * pi * f * L - 1 / (2 * pi * f * C), 2), 2)  # power factor
+        omega = 1 / root(L * C, 2)  # resonance angular frequency
+        Q = root(L / C, 2) / R  # quality factor
+        Z = root(pow(R, 2) + pow(omega * L - 1 / (omega * C), 2), 2)
 
         return pf, Q, omega, Z
 
 
 def rc_circuit(V_in, t, R, C):
-    return V_in * (1 - m.exp(-t / (R * C)))
+    return V_in * (1 - exp(-t / (R * C)))
 
 
 def lorentzForce(q, E, v, B, theta):
@@ -164,7 +162,7 @@ def lorentzForce(q, E, v, B, theta):
     :param theta: The angle between the velocity of the particle and the magnetic field vector (rad)
     :return: Lorentz force (N)
     """
-    return q * E + q * v * B * m.sin(theta)
+    return q * E + q * v * B * sin(theta)
 
 
 def wheatstone(Vin, R1, R2, R3):
@@ -182,7 +180,7 @@ def skinDepth(rho, f, mur):
     :param mur: the relative permeability of the conductor
     :return: the depth of the conductor where the current flows.
     """
-    return m.root(rho / (c.pi * f * mur * c.mu0), 2)
+    return root(rho / (c.pi * f * mur * c.mu0), 2)
 
 
 def timer555(C, R1, R2, *args):
@@ -233,7 +231,7 @@ def buckConverter(V_out, V_in, I_out, f_sw, V_f, R_DS_on, *args):
 
     I_pp_ripple = I_out_min * 2  # peak-to-peak ripple current (A)
     I_peak = I_out + I_out_min  # peak switch current (A)
-    I_RMS = m.root(
+    I_RMS = root(
         (V_out + V_f) / (V_in - V_R_DS_on) * (pow(I_peak, 2) - (I_peak * I_pp_ripple) + (pow(I_pp_ripple, 2) / 3)), 2)
 
     P_cond = R_DS_on * pow(I_RMS, 2)  # the conduction losses occurring on the switch during on state (W)
@@ -242,7 +240,7 @@ def buckConverter(V_out, V_in, I_out, f_sw, V_f, R_DS_on, *args):
     I_avg = I_out * (1 - Duty)  # Average rectified output current (A)
     V_DS_min = (V_in + V_f) + 5  # minimum rated drain-to-source voltage (V)
 
-    I_RMS_C = I_pp_ripple / m.root(12, 2)  # Output capacitor RMS ripple current
+    I_RMS_C = I_pp_ripple / root(12, 2)  # Output capacitor RMS ripple current
     C_out_min = (I_pp_ripple * T) / (8 * V_pp_ripple)
 
     if not args:
@@ -270,4 +268,4 @@ def diodeEquation(I_0, V, T):
     :param T: absolute temperature (K)
     :return: the net current flowing through the diode (I).
     """
-    return I_0 * (m.exp(c.q * V / (c.BoltzmannConstant().J_per_K() * T)) - 1)
+    return I_0 * (exp(c.q * V / (c.BoltzmannConstant().J_per_K() * T)) - 1)
