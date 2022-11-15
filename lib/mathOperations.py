@@ -371,20 +371,51 @@ def polar2complex(A, theta, *args):
         raise ValueError("The arguments can either be Degree or Radian.")
 
 
-def aMult(a, array):
-    return [x * a for x in array]
+# ARRAY OPERATIONS -----------------------------------------------------------------------------------------------------
+
+def scalarMultiply(a, array):
+    return [[j * a for j in i] for i in array]
+
+
+def eye(rows, cols):
+    """Generate an identity array.
+
+    :param rows: number of rows.
+    :param cols: number of columns.
+    :return: identity array with a size of rows x columns.
+    """
+    Identity = zeroMatrix(rows, cols)
+    for i in range(cols):
+        for j in range(rows):
+            if i == j:
+                Identity[i][j] = 1
+
+    return Identity
 
 
 def zeroMatrix(rows, cols):
+    """Generate a 2D array full of zeroes.
+
+    :param rows: number of rows.
+    :param cols: number of columns.
+    :return: a 2D array full of zeroes.
+    """
     return [[0 for i in range(cols)] for j in range(rows)]
 
 
 def oneMatrix(rows, cols):
+    """Generate a 2D array full of ones.
+
+    :param rows: number of rows.
+    :param cols: number of columns.
+    :return: a 2D array full of ones.
+    """
     return [[1 for i in range(cols)] for j in range(rows)]
+
 
 def parkTransform(omega, t):
     scalar = 2 / 3
     matrix = [[cos(omega * t), cos(omega * t - 2 * pi / 3), cos(omega * t + 2 * pi / 3)],
               [-sin(omega * t), -sin(omega * t - 2 * pi / 3), -sin(omega * t + 2 * pi / 3)],
               [0.5, 0.5, 0.5]]
-    return aMult(scalar, matrix)
+    return scalarMultiply(scalar, matrix)
