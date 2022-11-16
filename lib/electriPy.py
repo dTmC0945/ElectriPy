@@ -345,7 +345,26 @@ class DCMotor(object):
 class MMF(object):
 
     @staticmethod
-    def spaceFieldCurve(B_1, x, tau_p):
-        return B_1 * np.cos(x * np.pi / tau_p)
+    def spaceFieldCurveDC(B_1, x, tau_p, *args):
+        if args[0] == "Fundamental":
+            return B_1 * np.cos(x * np.pi / tau_p)
+        if args[1] == "I want it all!":
+            return 0 # add infinite sum here !
+    @staticmethod
+    def spaceFieldCurveAC(B_1, x, tau_p, f, t,*args):
+        omega = 2 * np.pi * f
+        if args[0] == "Fundamental":
+            return B_1 * np.cos(x * np.pi / tau_p) * cos(omega * t)
+        if args[1] == "I want it all!":
+            return 0 # add infinite sum here !
 
-    @
+
+def multiPhaseWaveformGeneration(phase, Amplitude, frequency, t):
+    diff = 2 * np.pi / phase
+    k = 1
+    Source = np.zeros((phase, len(t)))
+    while k <= phase:
+        Source[k-1] = Amplitude * np.cos(2 * np.pi * frequency * t - k * diff)
+        k += 1
+
+    return Source

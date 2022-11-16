@@ -1,12 +1,19 @@
 from lib import *
 import matplotlib.pyplot as plt
 import numpy as np
-from mpmath import nsum, inf
 
 
-t1 = np.arange(0.01, pi/2, 0.02,  dtype=int)
+x = np.arange(0.01, np.pi/4, 0.02)
 
 
 
 
-DCMotor.AvgConductorEMF()
+y = multiPhaseWaveformGeneration(3, 1, 2, x)
+
+y1 = y[0,:]
+y2 = y[1,:]
+y3 = y[2,:]
+plt.plot(x,y1)
+plt.plot(x,y2)
+plt.plot(x,y3)
+plt.show()
