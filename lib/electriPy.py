@@ -273,3 +273,10 @@ def diodeEquation(I_0, V, T):
 def deltaConnection(array, Z_total):
     return 1
 
+def mmfSum(n, t, phase):
+    sum = 0
+    k = 0
+    while k <= n:
+        sum = sum + 1 / (2 * k + 1) * pow(-1, k) * np.cos((2 * k + 1) * (np.pi * t - phase))
+        k += 1
+    return sum * 100
