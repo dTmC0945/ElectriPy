@@ -1,4 +1,7 @@
+import numpy as np
+
 from .__init__ import *
+
 
 class Resistance:
 
@@ -270,8 +273,10 @@ def diodeEquation(I_0, V, T):
     """
     return I_0 * (exp(1 * V / (BoltzmannConstant().J_per_K() * T)) - 1)
 
+
 def deltaConnection(array, Z_total):
     return 1
+
 
 def mmfSum(n, t, phase):
     sum = 0
@@ -280,3 +285,67 @@ def mmfSum(n, t, phase):
         sum = sum + 1 / (2 * k + 1) * pow(-1, k) * np.cos((2 * k + 1) * (np.pi * t - phase))
         k += 1
     return sum * 100
+
+
+class DCMotor(object):
+
+    def __init__(self):
+        self.init = self
+
+    @staticmethod
+    def AvgConductorEMF(N_p, Phi_m, omega_a):
+        """ Calculates the average conductor EMF experienced by the DC drive
+
+        @param N_p: the number of pole pairs.
+        @param Phi_m: flux per pole.
+        @param omega_a: speed of the armature.
+        @return: average conductor EMF.
+        """
+        return N_p * omega_a * Phi_m / np.pi
+
+    @staticmethod
+    def ArmatureTerminalVoltage(N_p, Phi_m, omega_a, z, a):
+        return N_p * omega_a * Phi_m / np.pi * z / (2 * a)
+
+    @staticmethod
+    def ArmatureTangentialForce(I_a, a, l_a, B_sigma_x):
+        return I_a / (2 * a) * l_a * B_sigma_x
+
+    @staticmethod
+    def AverageArmatureTangentialForce(I_a, a, tau_p, Phi_m):
+        return I_a / (2 * a) * Phi_m * 1 / tau_p
+
+    @staticmethod
+    def ArmatureTangentialTorque(N_p, tau_p, I_a, a, l_a, B_sigma_x):
+        return N_p * tau_p / np.pi * I_a / (2 * a) * l_a * B_sigma_x
+
+    @staticmethod
+    def AverageArmatureTangentialTorque(N_p, I_a, a, Phi_m):
+        return N_p / np.pi * I_a / (2 * a) * Phi_m
+
+    @staticmethod
+    def TotalElectromagneticTorque(z, a, N_p, I_a, Phi_m):
+        return z / (2 * np.pi * a) * N_p * I_a * Phi_m
+
+    @staticmethod
+    def TerminalVoltage(E_a, R_a, I_a, V_b):
+        return E_a + R_a * I_a + V_b
+
+    class SeparatelyExcitedDC(object):
+
+        @staticmethod
+        def speed(V_a, k, Phi_m, R_a, R_u, T_a):
+            return V_a / (k * Phi_m) - (R_a + R_u) / pow(k * Phi_m, 2) * T_a
+
+        @staticmethod
+        def noloadspeed(V_a, k, Phi_m):
+            return V_a / (k * Phi_m)
+
+
+class MMF(object):
+
+    @staticmethod
+    def spaceFieldCurve(B_1, x, tau_p):
+        return B_1 * np.cos(x * np.pi / tau_p)
+
+    @

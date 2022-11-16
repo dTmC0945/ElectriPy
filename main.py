@@ -9,3 +9,4 @@ t1 = np.arange(0.01, pi/2, 0.02,  dtype=int)
 
 
 
+DCMotor.AvgConductorEMF()
