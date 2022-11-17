@@ -368,3 +368,27 @@ def multiPhaseWaveformGeneration(phase, Amplitude, frequency, t):
         k += 1
 
     return Source
+
+
+def ShuntMotorConstruction(P_n, V_n, n):
+
+    C = P_n / n # usefulness factor (kW * min / m3)
+
+    Cmin = 1.76
+    Cmax = 2.65
+
+    C = 2.04 * pow(10, 3)
+
+    eta = 0.865
+
+    # The efficiency of the electromagnetically generated power
+    internal_eta = (2 * eta) / (1 + eta)
+
+    # The electromagnetic power
+    P_i = P_n / internal_eta
+
+    
+
+
+
+
