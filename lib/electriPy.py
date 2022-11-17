@@ -25,6 +25,8 @@ class Resistance():
         @param args: "Help" for more infor on the resistivity of materials
         @return: is the electrical resistance of a uniform specimen of the material
         """
+        if not args:
+            return rho * length / area
         if args[0] == "Help":
             wikiUrl = "https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity"
             table_class = "wikitable"
@@ -47,7 +49,10 @@ class Resistance():
             print("----------------------------------------------------------------------")
             print(data.head(n=10))
             print("----------------------------------------------------------------------")
-        return rho * length / area
+
+            return 0
+        else:
+            raise ValueError("The argument can only be Help")
 
     @staticmethod
     def steinhartHart(A, B, C, T):
