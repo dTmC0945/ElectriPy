@@ -406,6 +406,15 @@ def ShuntMotorConstruction(P_n, V_n, n):
     tau_p = np.pi * D_a / (2 * p)
     print("Pole step is:", tau_p, "cm")
 
-    
+    a_i = 0.684
 
+    L_i = a_i * tau_p
+
+    P_i = C * pow(D_a, 2) * L_i * n
+
+    m = 4.03
+
+    h_pa = 0.35 * tau_p + m
+
+    control = L_i / tau_p
 
