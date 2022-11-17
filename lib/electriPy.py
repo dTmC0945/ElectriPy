@@ -387,8 +387,25 @@ def ShuntMotorConstruction(P_n, V_n, n):
     # The electromagnetic power
     P_i = P_n / internal_eta
 
+    # Armature diameter
+    D_a = 270 # mm
+    print("Armature diameter is:", D_a, "mm")
+
+    v_a = np.pi * D_a * n / 60
+    print("Rotational Speed is:", v_a, "m/s")
+
+    # Number of pole pairs
+    p = 2
+    print("Number of pole pairs is:", p)
+
+    # frequency
+    f = p * n / 60
+    print("Operation frequency is:", f, "Hz")
+
+    # pole step
+    tau_p = np.pi * D_a / (2 * p)
+    print("Pole step is:", tau_p, "cm")
+
     
-
-
 
 
