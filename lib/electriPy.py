@@ -1,36 +1,46 @@
 import numpy as np
 
 from .__init__ import *
-import pandas as pd # library for data analysis
-import requests # library to handle requests
-from bs4 import BeautifulSoup # library to parse HTML documents
+import pandas as pd  # library for data analysis
+import requests  # library to handle requests
+from bs4 import BeautifulSoup  # library to parse HTML documents
 
-class Resistance:
+
+class Resistance():
 
     # rho: the electrical resistivity of the material, measured in ohm-metres
     # length: length of the conductor, measured in metres
     # area: cross-sectional area of the conductor, measured in square metres
 
-    def __init__(self, rho, length, area):
+    def __init__(self, rho, length, area, *args):
         self.rho = rho
         self.length = length
         self.area = area
 
+        if args[0] == "Help":
+            wikiUrl = "https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity"
+            table_class = "wikitable"
+            response = requests.get(wikiUrl)
+            # parse data from the html into a beautifulsoup object
+            soup = BeautifulSoup(response.text, 'html.parser')
+            resistivityTable = soup.find_all('table', {"class": "wikitable", "class": "sortable"})
+            df = pd.read_html(str(resistivityTable))
+            column_names = [item.get_text() for item in resistivityTable[0].find_all('th')]
+            # convert list to dataframe
+            df = pd.DataFrame(df[0])
+            # drop the unwanted columns
+            data = df.drop(["Conductivity, σ, at 20\xa0°C (S/m)", "Temperature coefficient[c] (K−1)", "Reference"],
+                           axis=1)
+            # rename columns for ease
+            # rename columns for ease
+            data = data.rename(columns={"Resistivity, ρ, at 20\xa0°C (Ω·m)": "Resistivity (Ω·m)"})
+            print("This table shows the resistivity (rho), conductivity and temperature coefficient \n of various "
+                  "materials at 20 °C -From Wikipedia")
+            print("----------------------------------------------------------------------")
+            print(data.head(n=10))
+            print("----------------------------------------------------------------------")
+
     def createResistance(self):
-        wikiUrl = "https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity"
-        table_class = "wikitable"
-        response = requests.get(wikiUrl)
-        # parse data from the html into a beautifulsoup object
-        soup = BeautifulSoup(response.text, 'html.parser')
-        resistivityTable = soup.find_all('table', {"class": "wikitable", "class": "sortable"})
-        df = pd.read_html(str(resistivityTable))
-        # convert list to dataframe
-        df = pd.DataFrame(df[0])
-        print(df.head())
-        # drop the unwanted columns
-        data = df.drop([, "Reference"], axis=1)
-        # rename columns for ease
-        print(data.head())
         return self.rho * self.length / self.area
 
 
@@ -365,14 +375,15 @@ class MMF(object):
         if args[0] == "Fundamental":
             return B_1 * np.cos(x * np.pi / tau_p)
         if args[1] == "I want it all!":
-            return 0 # add infinite sum here !
+            return 0  # add infinite sum here !
+
     @staticmethod
-    def spaceFieldCurveAC(B_1, x, tau_p, f, t,*args):
+    def spaceFieldCurveAC(B_1, x, tau_p, f, t, *args):
         omega = 2 * np.pi * f
         if args[0] == "Fundamental":
             return B_1 * np.cos(x * np.pi / tau_p) * cos(omega * t)
         if args[1] == "I want it all!":
-            return 0 # add infinite sum here !
+            return 0  # add infinite sum here !
 
 
 def multiPhaseWaveformGeneration(phase, Amplitude, frequency, t):
@@ -380,15 +391,14 @@ def multiPhaseWaveformGeneration(phase, Amplitude, frequency, t):
     k = 1
     Source = np.zeros((phase, len(t)))
     while k <= phase:
-        Source[k-1] = Amplitude * np.cos(2 * np.pi * frequency * t - k * diff)
+        Source[k - 1] = Amplitude * np.cos(2 * np.pi * frequency * t - k * diff)
         k += 1
 
     return Source
 
 
 def ShuntMotorConstruction(P_n, V_n, n):
-
-    C = P_n / n # usefulness factor (kW * min / m3)
+    C = P_n / n  # usefulness factor (kW * min / m3)
 
     Cmin = 1.76
     Cmax = 2.65
@@ -404,7 +414,7 @@ def ShuntMotorConstruction(P_n, V_n, n):
     P_i = P_n / internal_eta
 
     # Armature diameter
-    D_a = 270 # mm
+    D_a = 270  # mm
     print("Armature diameter is:", D_a, "mm")
 
     v_a = np.pi * D_a * n / 60
@@ -433,4 +443,3 @@ def ShuntMotorConstruction(P_n, V_n, n):
     h_pa = 0.35 * tau_p + m
 
     control = L_i / tau_p
-
