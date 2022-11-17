@@ -12,11 +12,11 @@ class Resistance():
     # length: length of the conductor, measured in metres
     # area: cross-sectional area of the conductor, measured in square metres
 
-    def __init__(self, rho, length, area, *args):
-        self.rho = rho
-        self.length = length
-        self.area = area
+    def __init__(self):
+        self.init = self
 
+    @staticmethod
+    def createResistance(rho, length, area, *args):
         if args[0] == "Help":
             wikiUrl = "https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity"
             table_class = "wikitable"
@@ -35,13 +35,29 @@ class Resistance():
             # rename columns for ease
             data = data.rename(columns={"Resistivity, ρ, at 20\xa0°C (Ω·m)": "Resistivity (Ω·m)"})
             print("This table shows the resistivity (rho), conductivity and temperature coefficient \n of various "
-                  "materials at 20 °C -From Wikipedia")
+                  "materials at 20 °C (68 °F; 293 K). -From Wikipedia")
             print("----------------------------------------------------------------------")
             print(data.head(n=10))
             print("----------------------------------------------------------------------")
+        return rho * length / area
 
-    def createResistance(self):
-        return self.rho * self.length / self.area
+    @staticmethod
+    def steinhartHart(A, B, C, T):
+        """The equation is often used to derive a precise temperature of a thermistor, since it provides a closer
+        approximation to actual temperature than simpler equations, and is useful over
+        the entire working temperature range of the sensor. Steinhart–Hart coefficients are usually published
+        by thermistor manufacturers. - From Wikipedia
+
+        @param A:
+        @param B:
+        @param C:
+        @param T:
+        @return:
+        """
+        x = 1 / C * (A - 1 / T)  # calculation of the x coefficient
+        y = np.sqrt(pow(B / (3 * C), 3) + pow(x, 2) / 4)  # calculation of the y coefficient
+
+        return np.exp(np.cbrt(y - x / 2) - np.cbrt(y + x / 2))
 
 
 class Functions:
