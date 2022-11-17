@@ -105,13 +105,39 @@ class Conductance:
     # length: length of the conductor, measured in metres
     # area: cross-sectional area of the conductor, measured in square metres
 
-    def __init__(self, sigma, length, area):
-        self.sigma = sigma
-        self.length = length
-        self.area = area
+    def __init__(self):
+        self.init = self
 
-    def createConductance(self):
-        return self.sigma * self.area / self.length
+    @staticmethod
+    def createConductance(sigma, length, area, *args):
+
+        if not args:
+            return sigma * area / length
+        if args[0] == "Help":
+            wikiUrl = "https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity"
+            table_class = "wikitable"
+            response = requests.get(wikiUrl)
+            # parse data from the html into a beautifulsoup object
+            soup = BeautifulSoup(response.text, 'html.parser')
+            resistivityTable = soup.find_all('table', {"class": "wikitable", "class": "sortable"})
+            df = pd.read_html(str(resistivityTable))
+            column_names = [item.get_text() for item in resistivityTable[0].find_all('th')]
+            # convert list to dataframe
+            df = pd.DataFrame(df[0])
+            # drop the unwanted columns
+            data = df.drop(["Resistivity, ρ, at 20\xa0°C (Ω·m)", "Temperature coefficient[c] (K−1)", "Reference"],
+                           axis=1)
+            # rename columns for ease
+            # rename columns for ease
+            data = data.rename(columns={"Conductivity, σ, at 20\xa0°C (S/m)": "Conductivity (S/m)"})
+            print("This table shows the resistivity (rho), conductivity and temperature coefficient \n of various "
+                  "materials at 20 °C (68 °F; 293 K). -From Wikipedia")
+            print("----------------------------------------------------------------------")
+            print(data.head(n=10))
+            print("----------------------------------------------------------------------")
+            return 0
+        else:
+            raise ValueError("The argument can only be Help")
 
 
 class Inductance:
@@ -142,6 +168,22 @@ class Inductance:
     @staticmethod
     def solenoid(N, Area, length):
         return c.mu0 * pow(N, 2) * Area / length
+
+    @staticmethod
+    def singleLayerSolenoid(N, D, l):
+        """ The well-known Wheeler's approximation formula for current-sheet model air-core coil.[1, 2]
+        This formula gives an error no more than 1% when l is bigger than 0.4 * D.
+
+        Reference
+        -------------
+        [1] Wheeler, Harold A. (September 1942). "Formulas for the skin effect". Proceedings of the I.R.E.: 412–424
+        [2] Wheeler, Harold A. (October 1928). "Simple inductance formulas for radio coils". Proceedings of the I.R.E.: 1398–1400.
+        @param N: number of turns
+        @param D: diameter in (cm)
+        @param l:  length in  (cm)
+        @return: inductance in (muH)
+        """
+        return pow(N, 2) * pow(D, 2) / (45 * D + 100 * l)
 
     @staticmethod
     def coaxialCable(length, b, a):
