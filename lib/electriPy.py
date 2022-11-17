@@ -17,6 +17,14 @@ class Resistance():
 
     @staticmethod
     def createResistance(rho, length, area, *args):
+        """
+
+        @param rho: the electrical resistivity ρ
+        @param length: the length of the specimen
+        @param area: is the cross-sectional area of the specimen
+        @param args: "Help" for more infor on the resistivity of materials
+        @return: is the electrical resistance of a uniform specimen of the material
+        """
         if args[0] == "Help":
             wikiUrl = "https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity"
             table_class = "wikitable"
@@ -48,16 +56,20 @@ class Resistance():
         the entire working temperature range of the sensor. Steinhart–Hart coefficients are usually published
         by thermistor manufacturers. - From Wikipedia
 
-        @param A:
-        @param B:
-        @param C:
-        @param T:
-        @return:
+        @param A: Steinhart–Hart coefficients, which vary depending on the type and model of thermistor and the temperature range of interest.
+        @param B: Steinhart–Hart coefficients, which vary depending on the type and model of thermistor and the temperature range of interest.
+        @param C: Steinhart–Hart coefficients, which vary depending on the type and model of thermistor and the temperature range of interest.
+        @param T: the temperature (in kelvins),
+        @return:  Resistance of a semiconductor at a given temperature (K).
         """
         x = 1 / C * (A - 1 / T)  # calculation of the x coefficient
         y = np.sqrt(pow(B / (3 * C), 3) + pow(x, 2) / 4)  # calculation of the y coefficient
 
         return np.exp(np.cbrt(y - x / 2) - np.cbrt(y + x / 2))
+
+    @staticmethod
+    def extrinsicSemiconductor(A, T, n):
+        return A * np.exp(pow(T, - 1 / n))
 
 
 class Functions:
@@ -117,6 +129,17 @@ class Inductance:
         return L * pow(i, 2) / 2  # calculates the energy stored in an inductor.
 
     @staticmethod
+    def QualityFactor(f, L, R):
+
+        omega = 2 * np.pi * f
+        return omega * L / R
+
+    @staticmethod
+    def CornerFrequency(R, L):
+
+        return R / (2 * np.pi * L)
+
+    @staticmethod
     def solenoid(N, Area, length):
         return c.mu0 * pow(N, 2) * Area / length
 
@@ -126,7 +149,7 @@ class Inductance:
         # a: Inner conductors radius
         # length: Length
         # mu0: permeability of free space
-        return mu0 / (2 * pi) * length * ln(b / a)
+        return mu0 / (2 * pi) * length * np.ln(b / a)
 
     @staticmethod
     def reactance(omega, L):
