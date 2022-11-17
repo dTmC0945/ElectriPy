@@ -1,7 +1,9 @@
 import numpy as np
 
 from .__init__ import *
-
+import pandas as pd # library for data analysis
+import requests # library to handle requests
+from bs4 import BeautifulSoup # library to parse HTML documents
 
 class Resistance:
 
@@ -15,6 +17,20 @@ class Resistance:
         self.area = area
 
     def createResistance(self):
+        wikiUrl = "https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity"
+        table_class = "wikitable"
+        response = requests.get(wikiUrl)
+        # parse data from the html into a beautifulsoup object
+        soup = BeautifulSoup(response.text, 'html.parser')
+        resistivityTable = soup.find_all('table', {"class": "wikitable", "class": "sortable"})
+        df = pd.read_html(str(resistivityTable))
+        # convert list to dataframe
+        df = pd.DataFrame(df[0])
+        print(df.head())
+        # drop the unwanted columns
+        data = df.drop([, "Reference"], axis=1)
+        # rename columns for ease
+        print(data.head())
         return self.rho * self.length / self.area
 
 
