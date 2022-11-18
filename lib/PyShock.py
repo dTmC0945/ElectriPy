@@ -49,6 +49,28 @@ class Resistance:
     def __init__(self):
         self.init = self
 
+    @classmethod
+    def helpTable(cls):
+        wikiUrl = "https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity"
+        table_class = "wikitable"
+        response = requests.get(wikiUrl)
+        # parse data from the html into a beautifulsoup object
+        soup = BeautifulSoup(response.text, 'html.parser')
+        resistivityTable = soup.find_all('table', {"class": "wikitable", "class": "sortable"})
+        df = pd.read_html(str(resistivityTable))
+        # convert list to dataframe
+        df = pd.DataFrame(df[0])
+        # drop the unwanted columns
+        data = df.drop(["Conductivity, σ, at 20\xa0°C (S/m)", "Temperature coefficient[c] (K−1)", "Reference"],
+                       axis=1)
+        data = data.rename(columns={"Resistivity, ρ, at 20\xa0°C (Ω·m)": "Resistivity (Ω·m)"})
+        print("This table shows the resistivity (rho), conductivity and temperature coefficient \n of various "
+              "materials at 20 °C (68 °F; 293 K). -From Wikipedia")
+        print("----------------------------------------------------------------------")
+        print(data.head(n=10))
+        print("----------------------------------------------------------------------")
+
+
     @staticmethod
     def createResistance(rho, length, area, *args):
         """The electrical resistance of an object is a measure of its opposition to the flow of electric current.
@@ -67,25 +89,7 @@ class Resistance:
         if not args:
             return rho * length / area
         if args[0] == "Help":
-            wikiUrl = "https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity"
-            table_class = "wikitable"
-            response = requests.get(wikiUrl)
-            # parse data from the html into a beautifulsoup object
-            soup = BeautifulSoup(response.text, 'html.parser')
-            resistivityTable = soup.find_all('table', {"class": "wikitable", "class": "sortable"})
-            df = pd.read_html(str(resistivityTable))
-            # convert list to dataframe
-            df = pd.DataFrame(df[0])
-            # drop the unwanted columns
-            data = df.drop(["Conductivity, σ, at 20\xa0°C (S/m)", "Temperature coefficient[c] (K−1)", "Reference"],
-                           axis=1)
-            data = data.rename(columns={"Resistivity, ρ, at 20\xa0°C (Ω·m)": "Resistivity (Ω·m)"})
-            print("This table shows the resistivity (rho), conductivity and temperature coefficient \n of various "
-                  "materials at 20 °C (68 °F; 293 K). -From Wikipedia")
-            print("----------------------------------------------------------------------")
-            print(data.head(n=10))
-            print("----------------------------------------------------------------------")
-
+            Resistance.helpTable()
             return 0
         else:
             raise ValueError("The argument can only be Help")
@@ -175,25 +179,7 @@ class Resistance:
         @return: resistivity of the material.
         """
         if args[0] == "Help":
-            wikiUrl = "https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity"
-            table_class = "wikitable"
-            response = requests.get(wikiUrl)
-            # parse data from the html into a beautifulsoup object
-            soup = BeautifulSoup(response.text, 'html.parser')
-            resistivityTable = soup.find_all('table', {"class": "wikitable", "class": "sortable"})
-            df = pd.read_html(str(resistivityTable))
-            # convert list to dataframe
-            df = pd.DataFrame(df[0])
-            # drop the unwanted columns
-            data = df.drop(["Conductivity, σ, at 20\xa0°C (S/m)", "Temperature coefficient[c] (K−1)", "Reference"],
-                           axis=1)
-            data = data.rename(columns={"Resistivity, ρ, at 20\xa0°C (Ω·m)": "Resistivity (Ω·m)"})
-            print("This table shows the resistivity (rho), conductivity and temperature coefficient \n of various "
-                  "materials at 20 °C (68 °F; 293 K). -From Wikipedia")
-            print("----------------------------------------------------------------------")
-            print(data.head(n=10))
-            print("----------------------------------------------------------------------")
-
+            Resistance.helpTable()
             return 0
         elif area == 0:
             return rho * length / (width * thickness)
@@ -385,7 +371,7 @@ class Capacitance:
         self.init = self
 
     @staticmethod
-    def energy(capacitance, voltage):
+    def capacitorEnergy(capacitance, voltage):
         return 0.5 * capacitance * pow(voltage, 2)
 
     @staticmethod
@@ -396,6 +382,10 @@ class Capacitance:
         # Area: area of the two plates,
 
         return epsilon0 * epsilonr * Area / distance
+
+    @staticmethod
+    def interleavedCapacitor(area, distance, number):
+        return epsilon0 * area / distance * (number - 1)
 
     @staticmethod
     def concentricCylinders(epsilonr, length, R1, R2):
@@ -414,6 +404,10 @@ class Capacitance:
         epsilon = epsilonr * epsilon0
 
         return np.pi * epsilon * length / np.arcosh(distance / (2 * wireRadius))
+
+    @staticmethod
+    def electrolyticCapacitorLifespan(ratedLife, ratedTemp, averageTemp):
+        return ratedLife * pow(2, (ratedTemp - averageTemp) / 10)
 
 
 class ElectricCircuits:
