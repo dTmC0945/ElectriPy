@@ -1,9 +1,37 @@
 import numpy as np
-from .__init__ import *
+
 import pandas as pd  # library for data analysis
 import requests  # library to handle requests
 from bs4 import BeautifulSoup  # library to parse HTML documents
 
+# Constants ------------------------------------------------------------------------------------------------------------
+mu0 = 4 * np.pi * 1.00000000055 * pow(10, -7)  # H/m
+epsilon0 = 8.8541878128 * pow(10, -12)  # F / m-1
+euler = 2.718281828459045235360287471352
+c = 299792458  # metres per second
+e = 1.602176634 * pow(10, -19)  # the electric charge carried by a single proton or,
+
+
+# equivalently, the magnitude of the negative electric charge carried by a single electron (C)
+
+
+def BoltzmannConstant(*args):
+
+    if args[0] == "J/K":
+        return 1.380649 * pow(10, -23)
+    if args[0] == "eV/K":
+        return 8.617333262 * pow(10, -5)
+    if args[0] == "Hz/K":
+        return 2.083661912 * pow(10, 10)
+    if args[0] == "erg/K":
+        return 1.380649 * pow(10, -16)
+    if args[0] == "cal/K":
+        return 3.297623483 * pow(10, -24)
+    if args[0] == "cm-1/K":
+        return 0.695034800
+    if args[0] == "Eh/K":
+        return 3.166811563 * pow(10, -6)
+# ----------------------------------------------------------------------------------------------------------------------
 
 class Resistance:
 
@@ -597,3 +625,19 @@ def powerGain(P_out, P_in, *args):
         return 0.5 * np.log2(P_out / P_in)  # dB
     else:
         raise ValueError("The arguments can either be dB or nepers.")
+
+
+def stepperMotorResonanceFreq(p, M_h, J_r):
+    """When the motor moves a single step it overshoots the final resting point and oscillates round this
+    point as it comes to rest. This undesirable ringing is experienced as motor rotor vibration and is more
+    pronounced in unloaded motors. An unloaded or under loaded motor may, and often will, stall if the vibration
+    experienced is enough to cause loss of synchronisation. Stepper motors have a natural frequency of operation.
+    When the excitation frequency matches this resonance the ringing is more pronounced, steps may be missed,
+    and stalling is more likely. Motor resonance frequency can be calculated from the formula:
+
+    @param p: Number of pole pairs
+    @param M_h: Holding torque (N.m)
+    @param J_r: Rotor inertia (kg.m2)
+    @return: Motor resonance frequency
+    """
+    return 100 / (2 * np.pi) * np.sqrt(2 * p * M_h / J_r)
