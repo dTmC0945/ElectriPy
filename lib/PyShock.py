@@ -79,8 +79,6 @@ class Resistance:
             # drop the unwanted columns
             data = df.drop(["Conductivity, σ, at 20\xa0°C (S/m)", "Temperature coefficient[c] (K−1)", "Reference"],
                            axis=1)
-            # rename columns for ease
-            # rename columns for ease
             data = data.rename(columns={"Resistivity, ρ, at 20\xa0°C (Ω·m)": "Resistivity (Ω·m)"})
             print("This table shows the resistivity (rho), conductivity and temperature coefficient \n of various "
                   "materials at 20 °C (68 °F; 293 K). -From Wikipedia")
@@ -164,7 +162,54 @@ class Resistance:
             plt.show()
 
     @staticmethod
+    def sheetResistance(rho, length, area, width, thickness, *args):
+        """Sheet resistance, is a measure of resistance of thin films that are nominally uniform in thickness.
+        It is commonly used to characterize materials made by semiconductor doping, metal deposition,
+        resistive paste printing, and glass coating.
+
+        @param rho: resistivity of the material
+        @param length: length of the material
+        @param area: cross-sectional area of the material
+        @param width: width of the material
+        @param thickness: thickness of the material
+        @return: resistivity of the material.
+        """
+        if args[0] == "Help":
+            wikiUrl = "https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity"
+            table_class = "wikitable"
+            response = requests.get(wikiUrl)
+            # parse data from the html into a beautifulsoup object
+            soup = BeautifulSoup(response.text, 'html.parser')
+            resistivityTable = soup.find_all('table', {"class": "wikitable", "class": "sortable"})
+            df = pd.read_html(str(resistivityTable))
+            # convert list to dataframe
+            df = pd.DataFrame(df[0])
+            # drop the unwanted columns
+            data = df.drop(["Conductivity, σ, at 20\xa0°C (S/m)", "Temperature coefficient[c] (K−1)", "Reference"],
+                           axis=1)
+            data = data.rename(columns={"Resistivity, ρ, at 20\xa0°C (Ω·m)": "Resistivity (Ω·m)"})
+            print("This table shows the resistivity (rho), conductivity and temperature coefficient \n of various "
+                  "materials at 20 °C (68 °F; 293 K). -From Wikipedia")
+            print("----------------------------------------------------------------------")
+            print(data.head(n=10))
+            print("----------------------------------------------------------------------")
+
+            return 0
+        elif area == 0:
+            return rho * length / (width * thickness)
+        if width & thickness == 0:
+            return rho * length / area
+
+    @staticmethod
     def extrinsicSemiconductor(A, T, n):
+        """ In non-crystalline semiconductors, conduction can occur by charges quantum tunnelling
+        from one localised site to another. This is known as variable range hopping.
+
+        @param A: one of the Steinhart - Hart coefficient (A)
+        @param T: temperature of the measurements (K)
+        @param n: depends on the dimensionality of the system (n = 2,3,4)
+        @return: resistivity of the conductor
+        """
         return A * np.exp(pow(T, - 1 / n))
 
 
@@ -177,7 +222,7 @@ class Functions:
     def series(R1, *args):
         # This function takes multiple values (be it R, L, C) and prints out the sum reactance values as if it were
         # connected in series
-        Sum = R1
+        Sum = R1  # define original value and add all additional values in the argument (*args)
         for R in args:
             Sum = Sum + R
         return Sum
@@ -302,7 +347,7 @@ class Inductance:
         return pow(N, 2) * pow(D, 2) / (45 * D + 100 * length)
 
     @staticmethod
-    def coaxialCable(length, b, a):
+    def coaxialCableHF(length, b, a):
         # b: Outer conductors inside radius
         # a: Inner conductors radius
         # length: Length
@@ -338,6 +383,10 @@ class Capacitance:
 
     def __init__(self):
         self.init = self
+
+    @staticmethod
+    def energy(capacitance, voltage):
+        return 0.5 * capacitance * pow(voltage, 2)
 
     @staticmethod
     def parallelPlate(epsilonr, Area, distance):
