@@ -59,6 +59,16 @@ class Resistance:
             raise ValueError("The argument can only be Help")
 
     @staticmethod
+    def steinhartHartCoefficients(R1, R2, R3, T1, T2, T3):
+        A = [[1, np.log(R1), pow(np.log(R1), 3)],
+             [1, np.log(R2), pow(np.log(R2), 3)],
+             [1, np.log(R3), pow(np.log(R3), 3)]]
+
+        B = [1 / T1, 1 / T2, 1 / T3]
+
+        return np.linalg.solve(A, B)
+
+    @staticmethod
     def steinhartHartResistance(A=2.108508173e-3, B=0.7979204727e-4, C=6.535076315e-7, T=25 + 273.15, *args):
         """The equation is often used to derive a precise temperature of a thermistor, since it provides a closer
         approximation to actual temperature than simpler equations, and is useful over
@@ -84,6 +94,7 @@ class Resistance:
             x = 1 / C * (A - 1 / T)  # calculation of the x coefficient
             y = np.sqrt(pow(B / (3 * C), 3) + pow(x, 2) / 4)  # calculation of the y coefficient
             R = np.exp(np.cbrt(y - x / 2) - np.cbrt(y + x / 2))
+            return R
 
     @staticmethod
     def extrinsicSemiconductor(A, T, n):
@@ -117,44 +128,33 @@ class Functions:
         return Sum
 
 
-class Conductance:
-
-    # sigma: the electrical conductivity of the material, measured in siemens per meter.
-    # length: length of the conductor, measured in metres
-    # area: cross-sectional area of the conductor, measured in square metres
-
-    def __init__(self):
-        self.init = self
-
-    @staticmethod
-    def createConductance(sigma, length, area, *args):
-
-        if not args:
-            return sigma * area / length
-        if args[0] == "Help":
-            wikiUrl = "https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity"
-            response = requests.get(wikiUrl)
-            # parse data from the html into a beautifulsoup object
-            soup = BeautifulSoup(response.text, 'html.parser')
-            resistivityTable = soup.find_all('table', {"class": "wikitable", "class": "sortable"})
-            df = pd.read_html(str(resistivityTable))
-            column_names = [item.get_text() for item in resistivityTable[0].find_all('th')]
-            # convert list to dataframe
-            df = pd.DataFrame(df[0])
-            # drop the unwanted columns
-            data = df.drop(["Resistivity, ρ, at 20\xa0°C (Ω·m)", "Temperature coefficient[c] (K−1)", "Reference"],
-                           axis=1)
-            # rename columns for ease
-            # rename columns for ease
-            data = data.rename(columns={"Conductivity, σ, at 20\xa0°C (S/m)": "Conductivity (S/m)"})
-            print("This table shows the resistivity (rho), conductivity and temperature coefficient \n of various "
-                  "materials at 20 °C (68 °F; 293 K). -From Wikipedia")
-            print("----------------------------------------------------------------------")
-            print(data.head(n=10))
-            print("----------------------------------------------------------------------")
-            return 0
-        else:
-            raise ValueError("The argument can only be Help")
+def Conductance(sigma, length, area, *args):
+    if not args:
+        return sigma * area / length
+    if args[0] == "Help":
+        wikiUrl = "https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity"
+        response = requests.get(wikiUrl)
+        # parse data from the html into a beautifulsoup object
+        soup = BeautifulSoup(response.text, 'html.parser')
+        resistivityTable = soup.find_all('table', {"class": "wikitable", "class": "sortable"})
+        df = pd.read_html(str(resistivityTable))
+        column_names = [item.get_text() for item in resistivityTable[0].find_all('th')]
+        # convert list to dataframe
+        df = pd.DataFrame(df[0])
+        # drop the unwanted columns
+        data = df.drop(["Resistivity, ρ, at 20\xa0°C (Ω·m)", "Temperature coefficient[c] (K−1)", "Reference"],
+                       axis=1)
+        # rename columns for ease
+        # rename columns for ease
+        data = data.rename(columns={"Conductivity, σ, at 20\xa0°C (S/m)": "Conductivity (S/m)"})
+        print("This table shows the resistivity (rho), conductivity and temperature coefficient \n of various "
+              "materials at 20 °C (68 °F; 293 K). -From Wikipedia")
+        print("----------------------------------------------------------------------")
+        print(data.head(n=10))
+        print("----------------------------------------------------------------------")
+        return 0
+    else:
+        raise ValueError("The argument can only be Help")
 
 
 class Inductance:
@@ -401,12 +401,12 @@ def deltaConnection(array, Z_total):
 
 
 def mmfSum(n, t, phase):
-    sum = 0
+    total = 0
     k = 0
     while k <= n:
-        sum = sum + 1 / (2 * k + 1) * pow(-1, k) * np.cos((2 * k + 1) * (np.pi * t - phase))
+        total = total + 1 / (2 * k + 1) * pow(-1, k) * np.cos((2 * k + 1) * (np.pi * t - phase))
         k += 1
-    return sum * 100
+    return total * 100
 
 
 class DCMotor(object):
