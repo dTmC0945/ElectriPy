@@ -74,7 +74,6 @@ class Resistance:
             soup = BeautifulSoup(response.text, 'html.parser')
             resistivityTable = soup.find_all('table', {"class": "wikitable", "class": "sortable"})
             df = pd.read_html(str(resistivityTable))
-            column_names = [item.get_text() for item in resistivityTable[0].find_all('th')]
             # convert list to dataframe
             df = pd.DataFrame(df[0])
             # drop the unwanted columns
@@ -173,7 +172,7 @@ def Conductance(sigma, length, area, *args):
         soup = BeautifulSoup(response.text, 'html.parser')
         resistivityTable = soup.find_all('table', {"class": "wikitable", "class": "sortable"})
         df = pd.read_html(str(resistivityTable))
-        column_names = [item.get_text() for item in resistivityTable[0].find_all('th')]
+        # column_names = [item.get_text() for item in resistivityTable[0].find_all('th')]
         # convert list to dataframe
         df = pd.DataFrame(df[0])
         # drop the unwanted columns
@@ -246,12 +245,20 @@ class Inductance:
 
     @staticmethod
     def straightWireConductor(length, radius, mu, rho, omega):
-        A = np.log(length / radius + np.sqrt(pow(length / radius,2) + 1))
-        B = 1 / (radius / length + np.sqrt(1 + pow(radius / length,2)))
+        """ Calculation of the straight wire conductor inductance.
+
+        @param length: length of the cylinder
+        @param radius: radius of the cylinder
+        @param mu: permeability of the conductor
+        @param rho: resistivity of the conductor
+        @param omega: phase rate
+        @return: inductance value
+        """
+        A = np.log(length / radius + np.sqrt(pow(length / radius, 2) + 1))
+        B = 1 / (radius / length + np.sqrt(1 + pow(radius / length, 2)))
         C = 1 / (4 + radius * np.sqrt(2 / rho * omega * mu))
 
         return mu0 / (2 * np.pi) * length * (A - B + C)
-
 
     @staticmethod
     def reactance(omega, L):
@@ -363,10 +370,10 @@ def timer555(C, R1, R2, *args):
     if not args:
         return f, T, T1, T0, MSR, Duty
     elif args[0] == "Print":
-        print("The frequency is", f)
-        print("The period is", T)
-        print("The high time is", T1)
-        print("The low time is", T0)
+        print("The frequency is", f, "Hz")
+        print("The period is", T), "s"
+        print("The high time is", T1, "s")
+        print("The low time is", T0, "s")
         print("The Mark Space Ratio is", MSR)
         print("The Duty Cycle is", Duty)
     else:
@@ -400,8 +407,8 @@ def buckConverter(V_out, V_in, I_out, f_sw, V_f, R_DS_on, *args):
 
     I_pp_ripple = I_out_min * 2  # peak-to-peak ripple current (A)
     I_peak = I_out + I_out_min  # peak switch current (A)
-    I_RMS = root(
-        (V_out + V_f) / (V_in - V_R_DS_on) * (pow(I_peak, 2) - (I_peak * I_pp_ripple) + (pow(I_pp_ripple, 2) / 3)), 2)
+    I_RMS = np.sqrt(
+        (V_out + V_f) / (V_in - V_R_DS_on) * (pow(I_peak, 2) - (I_peak * I_pp_ripple) + (pow(I_pp_ripple, 2) / 3)))
 
     P_cond = R_DS_on * pow(I_RMS, 2)  # the conduction losses occurring on the switch during on state (W)
 
@@ -409,7 +416,7 @@ def buckConverter(V_out, V_in, I_out, f_sw, V_f, R_DS_on, *args):
     I_avg = I_out * (1 - Duty)  # Average rectified output current (A)
     V_DS_min = (V_in + V_f) + 5  # minimum rated drain-to-source voltage (V)
 
-    I_RMS_C = I_pp_ripple / root(12, 2)  # Output capacitor RMS ripple current
+    I_RMS_C = I_pp_ripple / np.sqrt(12)  # Output capacitor RMS ripple current
     C_out_min = (I_pp_ripple * T) / (8 * V_pp_ripple)
 
     if not args:
@@ -437,7 +444,7 @@ def diodeEquation(I_0, V, T):
     :param T: absolute temperature (K)
     :return: the net current flowing through the diode (I).
     """
-    return I_0 * (np.exp(1 * V / (BoltzmannConstant().J_per_K() * T)) - 1)
+    return I_0 * (np.exp(1 * V / (BoltzmannConstant("J/K") * T)) - 1)
 
 
 def deltaConnection(array, Z_total):
@@ -618,7 +625,7 @@ def telegraphersEquation(R, L, C, G, l, x, t):
     return Sum
 
 
-def chuaCircuitPlot(alpha=15.395, beta=28, R=- 1.143, C_2=-0.714, u=[1, 1, 1], t=1):
+def chuaCircuitPlot(alpha=15.395, beta=28, R=- 1.143, C_2=-0.714, u=[1, 1, 1]):
     """Chua's circuit (also known as a Chua circuit) is a simple electronic circuit that exhibits classic chaotic
      behavior. This means roughly that it is a "nonperiodic oscillator"; it produces an
      oscillating waveform that, unlike an ordinary electronic oscillator, never "repeats".
@@ -637,14 +644,14 @@ def chuaCircuitPlot(alpha=15.395, beta=28, R=- 1.143, C_2=-0.714, u=[1, 1, 1], t
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
 
-    def chua(u, t):
+    def chua():
         x, y, z = u
         # electrical response of the nonlinear resistor
         f_x = C_2 * x + 0.5 * (R - C_2) * (abs(x + 1) - abs(x - 1))
         dudt = [alpha * (y - x - f_x), x - y + z, -beta * y]
         return dudt
 
-    # time discretization
+    # time values
     t_0 = 0
     dt = 1e-3
     t_final = 300
@@ -705,3 +712,50 @@ def stepperMotorResonanceFreq(p, M_h, J_r):
     @return: Motor resonance frequency
     """
     return 100 / (2 * np.pi) * np.sqrt(2 * p * M_h / J_r)
+
+def PhasorPlot(Array):
+    from matplotlib import pyplot as plt
+
+    x_main = 0
+    y_main = 0
+
+    PlotArray = np.zeros((len(Array), 4))
+
+    for i in range(len(Array)):
+        x = Array[i][0]
+        y = Array[i][1]
+        x_main = x_main + x
+        y_main = y_main + y
+
+    x_main = abs(x_main)
+    y_main = abs(y_main)
+
+    for i in range(len(Array) - 1):
+        PlotArray[i][2] = Array[i + 1][0]
+        PlotArray[i][3] = Array[i + 1][1]
+
+        x_sub_main = 0
+        y_sub_main = 0
+
+        j = 0
+        while j <= i + 1:
+            x = Array[j][0]
+            y = Array[j][1]
+            x_sub_main = x_sub_main + x
+            y_sub_main = y_sub_main + y
+            j += 1
+        PlotArray[i + 1][0] = x_sub_main
+        PlotArray[i + 1][1] = y_sub_main
+
+    PlotArray[-1] = [0, 0, x_main, y_main]
+
+    X, Y, U, V = zip(*PlotArray)
+    plt.figure()
+    plt.ylabel("Imaginary - Axis")
+    plt.xlabel("Real - Axis")
+    ax = plt.gca()
+    ax.quiver(X, Y, U, V, angles='xy', scale_units='xy', color=['r', 'b', 'g'], scale=1)
+    ax.set_xlim([- x_main - 5, x_main + 5])
+    ax.set_ylim([- y_main - 5, y_main + 5])
+    plt.draw()
+    plt.show()
