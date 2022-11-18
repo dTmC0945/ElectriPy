@@ -1,22 +1,18 @@
-import numpy as np
-
-import pandas as pd  # library for data analysis
+import numpy as np  # numpy ... cause you know .... numbers and stuff
+import pandas as pd  # library for data analysis and statistics
 import requests  # library to handle requests
 from bs4 import BeautifulSoup  # library to parse HTML documents
 
 # Constants ------------------------------------------------------------------------------------------------------------
 mu0 = 4 * np.pi * 1.00000000055 * pow(10, -7)  # H/m
-epsilon0 = 8.8541878128 * pow(10, -12)  # F / m-1
-euler = 2.718281828459045235360287471352
-c = 299792458  # metres per second
-e = 1.602176634 * pow(10, -19)  # the electric charge carried by a single proton or,
-h = 6.62607015 * pow(10, -34)
+epsilon0 = 8.8541878128 * pow(10, -12)  # electric constant (F.m-1)
+c = 299792458  # metres per second (m/s)
+e = 1.602176634 * pow(10, -19)  # the elementary electric charge (C)
+h = 6.62607015 * pow(10, -34)  # the plank constant (J.s)
+N_a = 6.02214076 * pow(10, 23)  # avogadro constant (mol-1)
 
 
-# equivalently, the magnitude of the negative electric charge carried by a single electron (C)
-
-
-def BoltzmannConstant(*args):
+def BoltzmannConstant(*args):  # the Boltzmann constant in its various forms
     if args[0] == "J/K":
         return 1.380649 * pow(10, -23)
     if args[0] == "eV/K":
@@ -35,18 +31,14 @@ def BoltzmannConstant(*args):
 
 # Unit Converter -------------------------------------------------------------------------------------------------------
 
-def unitConversion(data, unit_to):
-    units = {
-        "mm": {"mm": 1, "cm": 1 / 10, "m": 1 / 1000, "km": 1 / 1000000},
-        "cm": {"mm": 10, "cm": 1, "m": 1 / 100, "km": 1 / 100000},
-        "m": {"mm": 1000, "cm": 100, "m": 1, "km": 1 / 1000},
-        "km": {"mm": 1000000, "cm": 100000, "m": 1000, "km": 1}
-    }
+def scaleConverter(value: float, scale: str, new_scale: str) -> float:
+    units = {'G': 9, 'M': 6, 'k': 3, 'h': 2, 'da': 1, '': 0, 'd': -1, 'c': -2, 'm': -3, 'μ': -6, 'n': -9}
+    # G : Giga , M: Mega, k: kilo, h: hecto, da: deca, '': default, d: deci, c: centi, m: milli, μ: micro, n: nano
+    gap = units[scale] - units[new_scale]
+    return value * 10 ** gap
 
-    unit = "".join([item for item in data if item in "cmk"])
-    num = data.rstrip(unit).strip()
-    return "{}{}".format(float(num) * units.get(unit).get(unit_to), unit_to)
 
+# ----------------------------------------------------------------------------------------------------------------------
 
 class Resistance:
 
@@ -225,7 +217,7 @@ class Inductance:
 
     @staticmethod
     def solenoid(N, Area, length):
-        return c.mu0 * pow(N, 2) * Area / length
+        return mu0 * pow(N, 2) * Area / length
 
     @staticmethod
     def singleLayerSolenoid(N, D, length):
@@ -272,23 +264,23 @@ class Capacitance:
         # d: separation between the plates
         # Area: area of the two plates,
 
-        return c.epsilon0 * epsilonr * Area / distance
+        return epsilon0 * epsilonr * Area / distance
 
     @staticmethod
     def concentricCylinders(epsilonr, length, R1, R2):
-        epsilon = epsilonr * c.epsilon0
+        epsilon = epsilonr * epsilon0
 
         return 2 * np.pi * epsilon * length / np.ln(R2 / R1)
 
     @staticmethod
     def eccentricCylinders(epsilonr, length, R1, R2, distance):
-        epsilon = epsilonr * c.epsilon0
+        epsilon = epsilonr * epsilon0
 
         return 2 * np.pi * epsilon * length / np.arcosh((pow(R1, 2) + pow(R2, 2) - pow(distance, 2)) / (2 * R1 * R2))
 
     @staticmethod
     def pairOfParallelWires(epsilonr, length, distance, wireRadius):
-        epsilon = epsilonr * c.epsilon0
+        epsilon = epsilonr * epsilon0
 
         return np.pi * epsilon * length / np.arcosh(distance / (2 * wireRadius))
 
@@ -348,7 +340,7 @@ def skinDepth(rho, f, mur):
     :param mur: the relative permeability of the conductor
     :return: the depth of the conductor where the current flows.
     """
-    return np.sqrt(rho / (np.pi * f * mur * c.mu0))
+    return np.sqrt(rho / (np.pi * f * mur * mu0))
 
 
 def timer555(C, R1, R2, *args):
@@ -615,6 +607,54 @@ def telegraphersEquation(R, L, C, G, l, x, t):
         n += 1
 
     return Sum
+
+
+def chuaCircuitPlot(alpha=15.395, beta=28, R=- 1.143, C_2=-0.714, u=[1, 1, 1], t=1):
+    """Chua's circuit (also known as a Chua circuit) is a simple electronic circuit that exhibits classic chaotic
+     behavior. This means roughly that it is a "nonperiodic oscillator"; it produces an
+     oscillating waveform that, unlike an ordinary electronic oscillator, never "repeats".
+     It was invented in 1983 by Leon O. Chua, who was a visitor at Waseda University in Japan at that time.
+     - From Wikipedia
+
+    @param alpha:
+    @param beta:
+    @param R:
+    @param C_2:
+    @param u:
+    @param t:
+    @return:
+    """
+    from scipy.integrate import odeint
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+
+    def chua(u, t):
+        x, y, z = u
+        # electrical response of the nonlinear resistor
+        f_x = C_2 * x + 0.5 * (R - C_2) * (abs(x + 1) - abs(x - 1))
+        dudt = [alpha * (y - x - f_x), x - y + z, -beta * y]
+        return dudt
+
+    # time discretization
+    t_0 = 0
+    dt = 1e-3
+    t_final = 300
+    t = np.arange(t_0, t_final, dt)
+
+    # initial conditions
+    u0 = [0.1, 0, 0]
+    # integrate ode system
+    sol = odeint(chua, u0, t)
+
+    # 3d-plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
+
+    ax.plot(sol[:, 0], sol[:, 1], sol[:, 2])
+    plt.show()
 
 
 def delta2wye(R_ab, R_ac, R_bc):
