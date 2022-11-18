@@ -245,6 +245,15 @@ class Inductance:
         return mu0 / (2 * np.pi) * length * np.ln(b / a)
 
     @staticmethod
+    def straightWireConductor(length, radius, mu, rho, omega):
+        A = np.log(length / radius + np.sqrt(pow(length / radius,2) + 1))
+        B = 1 / (radius / length + np.sqrt(1 + pow(radius / length,2)))
+        C = 1 / (4 + radius * np.sqrt(2 / rho * omega * mu))
+
+        return mu0 / (2 * np.pi) * length * (A - B + C)
+
+
+    @staticmethod
     def reactance(omega, L):
         # omega: the angular frequency
         # L: inductance of element
