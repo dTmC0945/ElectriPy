@@ -94,13 +94,30 @@ class Resistance:
 
     @staticmethod
     def steinhartHartCoefficients(R1, R2, R3, T1, T2, T3):
-        A = [[1, np.log(R1), pow(np.log(R1), 3)],
+        """The equation is often used to derive a precise temperature of a thermistor, since it provides a closer
+        approximation to actual temperature than simpler equations, and is useful over
+        the entire working temperature range of the sensor. Steinhart–Hart coefficients are usually published
+        by thermistor manufacturers. - From Wikipedia
+
+        [1] John S. Steinhart, Stanley R. Hart, Calibration curves for thermistors, Deep-Sea Research and
+        Oceanographic Abstracts, Volume 15, Issue 4, August 1968, Pages 497–503,
+        ISSN 0011-7471, doi:10.1016/0011-7471(68)90057-0
+
+        @param R1: First measurement of R at temperature T1 (Ohm)
+        @param R2: Second measurement of R at temperature T2 (Ohm)
+        @param R3: Third measurement of R at temperature T2 (Ohm)
+        @param T1: First measurement temperature of R (K)
+        @param T2: Second measurement temperature of R (K)
+        @param T3: Third measurement temperature of R (K)
+        @return: The three coefficients in array [A, B, C]
+        """
+        A = [[1, np.log(R1), pow(np.log(R1), 3)],  # matrix of resistance values
              [1, np.log(R2), pow(np.log(R2), 3)],
              [1, np.log(R3), pow(np.log(R3), 3)]]
 
-        B = [1 / T1, 1 / T2, 1 / T3]
+        B = [1 / T1, 1 / T2, 1 / T3]  # matrix of temperature values
 
-        return np.linalg.solve(A, B)
+        return np.linalg.solve(A, B)  # solution using linear algebra (..math)
 
     @staticmethod
     def steinhartHartResistance(A=2.108508173e-3, B=0.7979204727e-4, C=6.535076315e-7, T=25 + 273.15, *args):
@@ -108,6 +125,10 @@ class Resistance:
         approximation to actual temperature than simpler equations, and is useful over
         the entire working temperature range of the sensor. Steinhart–Hart coefficients are usually published
         by thermistor manufacturers. - From Wikipedia
+
+        [1] John S. Steinhart, Stanley R. Hart, Calibration curves for thermistors, Deep-Sea Research and
+        Oceanographic Abstracts, Volume 15, Issue 4, August 1968, Pages 497–503,
+        ISSN 0011-7471, doi:10.1016/0011-7471(68)90057-0
 
         @param A: Steinhart–Hart coefficients, which vary depending on the type and model of thermistor and the
         temperature range of interest.
@@ -123,12 +144,24 @@ class Resistance:
             x = 1 / C * (A - 1 / T)  # calculation of the x coefficient
             y = np.sqrt(pow(B / (3 * C), 3) + pow(x, 2) / 4)  # calculation of the y coefficient
             return np.exp(np.cbrt(y - x / 2) - np.cbrt(y + x / 2))
-        elif args[0] == "Plot":
-            T = np.arrange(0, 100, 1)
-            x = 1 / C * (A - 1 / T)  # calculation of the x coefficient
+        elif args[0] == "Plot":  # plot argument
+            from matplotlib import pyplot as plt  # need this for plotting
+            import seaborn  # put a nice new coat of paint
+
+            T = np.arange(1, 50, 1)
+            x = 1 / C * (A - 1 / (T + 273.15))  # calculation of the x coefficient
             y = np.sqrt(pow(B / (3 * C), 3) + pow(x, 2) / 4)  # calculation of the y coefficient
             R = np.exp(np.cbrt(y - x / 2) - np.cbrt(y + x / 2))
-            return R
+
+            seaborn.set(style='ticks')
+            ax = plt.gca()
+            plt.ylabel("Temperature (Celsius)")
+            plt.xlabel("Resistance (Ohm)")
+            ax.spines['right'].set_color('none')
+            ax.spines['top'].set_color('none')
+            ax.grid(True, which='both')
+            plt.plot(T, R)
+            plt.show()
 
     @staticmethod
     def extrinsicSemiconductor(A, T, n):
@@ -160,6 +193,39 @@ class Functions:
         for R in args:
             Sum = Sum + 1 / R
         return Sum
+
+    @staticmethod
+    def complex2polar(z, *args):
+        polar = [0, 0]
+        polar[0] = abs(z.real + z.imag)
+
+        if not args:
+            polar[1] = np.arctan(z.imag / z.real)
+        elif args[0] == 'Degree':
+            polar[1] = np.arctan(z.imag / z.real) * 180 / np.pi
+        elif args[0] == 'Radian':
+            polar[1] = np.arctan(z.imag / z.real)
+        else:
+            raise ValueError("The arguments can either be Degree or Radian.")
+        return polar
+
+    @staticmethod
+    def polar2complex(A, theta, *args):
+        """Calculate the phasor value. When no argument is set Radian is taken as default.
+
+        :param A: takes magnitude
+        :param theta: takes angle (can be degree or radian based on argument)
+        :param args: "Degree", "Radian"
+        :return: complex value"""
+
+        if not args:
+            return complex(A * np.cos(theta), A * np.sin(theta))
+        elif args[0] == 'Degree':
+            return complex(A * np.cos(theta * np.pi / 180), A * np.sin(theta * np.pi / 180))
+        elif args[0] == 'Radian':
+            return complex(A * np.cos(theta), A * np.sin(theta))
+        else:
+            raise ValueError("The arguments can either be Degree or Radian.")
 
 
 def Conductance(sigma, length, area, *args):
@@ -704,7 +770,7 @@ def stepperMotorResonanceFreq(p, M_h, J_r):
     pronounced in unloaded motors. An unloaded or under loaded motor may, and often will, stall if the vibration
     experienced is enough to cause loss of synchronisation. Stepper motors have a natural frequency of operation.
     When the excitation frequency matches this resonance the ringing is more pronounced, steps may be missed,
-    and stalling is more likely. Motor resonance frequency can be calculated from the formula:
+    and stalling is more likely. Motor resonance frequency can be calculated from the formula: - From Wikipedia
 
     @param p: Number of pole pairs
     @param M_h: Holding torque (N.m)
@@ -712,6 +778,7 @@ def stepperMotorResonanceFreq(p, M_h, J_r):
     @return: Motor resonance frequency
     """
     return 100 / (2 * np.pi) * np.sqrt(2 * p * M_h / J_r)
+
 
 def PhasorPlot(Array):
     from matplotlib import pyplot as plt
@@ -773,3 +840,12 @@ def PhasorPlot(Array):
     seaborn.despine(ax=ax, offset=0)  # the important part here
     plt.draw()
     plt.show()
+
+
+def halfBridge(array):
+    for i in array:
+        if i < 0:
+            print(i)
+            array[1, i] == 0
+
+    return array
