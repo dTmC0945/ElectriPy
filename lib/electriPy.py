@@ -10,13 +10,13 @@ epsilon0 = 8.8541878128 * pow(10, -12)  # F / m-1
 euler = 2.718281828459045235360287471352
 c = 299792458  # metres per second
 e = 1.602176634 * pow(10, -19)  # the electric charge carried by a single proton or,
+h = 6.62607015 * pow(10, -34)
 
 
 # equivalently, the magnitude of the negative electric charge carried by a single electron (C)
 
 
 def BoltzmannConstant(*args):
-
     if args[0] == "J/K":
         return 1.380649 * pow(10, -23)
     if args[0] == "eV/K":
@@ -31,7 +31,22 @@ def BoltzmannConstant(*args):
         return 0.695034800
     if args[0] == "Eh/K":
         return 3.166811563 * pow(10, -6)
-# ----------------------------------------------------------------------------------------------------------------------
+
+
+# Unit Converter -------------------------------------------------------------------------------------------------------
+
+def unitConversion(data, unit_to):
+    units = {
+        "mm": {"mm": 1, "cm": 1 / 10, "m": 1 / 1000, "km": 1 / 1000000},
+        "cm": {"mm": 10, "cm": 1, "m": 1 / 100, "km": 1 / 100000},
+        "m": {"mm": 1000, "cm": 100, "m": 1, "km": 1 / 1000},
+        "km": {"mm": 1000000, "cm": 100000, "m": 1000, "km": 1}
+    }
+
+    unit = "".join([item for item in data if item in "cmk"])
+    num = data.rstrip(unit).strip()
+    return "{}{}".format(float(num) * units.get(unit).get(unit_to), unit_to)
+
 
 class Resistance:
 
