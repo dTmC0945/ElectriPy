@@ -715,6 +715,7 @@ def stepperMotorResonanceFreq(p, M_h, J_r):
 
 def PhasorPlot(Array):
     from matplotlib import pyplot as plt
+    import seaborn
 
     x_main = 0
     y_main = 0
@@ -750,12 +751,25 @@ def PhasorPlot(Array):
     PlotArray[-1] = [0, 0, x_main, y_main]
 
     X, Y, U, V = zip(*PlotArray)
+    x = np.linspace(0.2, 10, 100)
+    seaborn.set(style='ticks')
+
     plt.figure()
     plt.ylabel("Imaginary - Axis")
     plt.xlabel("Real - Axis")
+    plt.plot(0, 0, 'ok')  # <-- plot a black point at the origin
     ax = plt.gca()
     ax.quiver(X, Y, U, V, angles='xy', scale_units='xy', color=['r', 'b', 'g'], scale=1)
     ax.set_xlim([- x_main - 5, x_main + 5])
     ax.set_ylim([- y_main - 5, y_main + 5])
+    ax.spines['left'].set_position('zero')
+    ax.spines['right'].set_color('none')
+    ax.spines['bottom'].set_position('zero')
+    ax.spines['top'].set_color('none')
+    ax.set_aspect('equal')
+    ax.grid(True, which='both')
+    plt.axvline(0)
+    plt.axhline(0)
+    seaborn.despine(ax=ax, offset=0)  # the important part here
     plt.draw()
     plt.show()
