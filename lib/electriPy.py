@@ -1,12 +1,11 @@
 import numpy as np
-
 from .__init__ import *
 import pandas as pd  # library for data analysis
 import requests  # library to handle requests
 from bs4 import BeautifulSoup  # library to parse HTML documents
 
 
-class Resistance():
+class Resistance:
 
     # rho: the electrical resistivity of the material, measured in ohm-metres
     # length: length of the conductor, measured in metres
@@ -17,7 +16,10 @@ class Resistance():
 
     @staticmethod
     def createResistance(rho, length, area, *args):
-        """
+        """The electrical resistance of an object is a measure of its opposition to the flow of electric current.
+        Its reciprocal quantity is electrical conductance, measuring the ease with which an electric current passes.
+        Electrical resistance shares some conceptual parallels with mechanical friction.
+        The SI unit of electrical resistance is the ohm (Ω) - From Wikipedia
 
         @param rho: the electrical resistivity ρ
         @param length: the length of the specimen
@@ -25,6 +27,8 @@ class Resistance():
         @param args: "Help" for more infor on the resistivity of materials
         @return: is the electrical resistance of a uniform specimen of the material
         """
+
+        # Scraping the wikipedia article to gather the most conductive material for the "Help argument"
         if not args:
             return rho * length / area
         if args[0] == "Help":
@@ -55,22 +59,31 @@ class Resistance():
             raise ValueError("The argument can only be Help")
 
     @staticmethod
-    def steinhartHart(A, B, C, T):
+    def steinhartHartResistance(A=2.108508173e-3, B=0.7979204727e-4, C=6.535076315e-7, T=25 + 273.15, *args):
         """The equation is often used to derive a precise temperature of a thermistor, since it provides a closer
         approximation to actual temperature than simpler equations, and is useful over
         the entire working temperature range of the sensor. Steinhart–Hart coefficients are usually published
         by thermistor manufacturers. - From Wikipedia
 
-        @param A: Steinhart–Hart coefficients, which vary depending on the type and model of thermistor and the temperature range of interest.
-        @param B: Steinhart–Hart coefficients, which vary depending on the type and model of thermistor and the temperature range of interest.
-        @param C: Steinhart–Hart coefficients, which vary depending on the type and model of thermistor and the temperature range of interest.
+        @param A: Steinhart–Hart coefficients, which vary depending on the type and model of thermistor and the
+        temperature range of interest.
+        @param B: Steinhart–Hart coefficients, which vary depending on the type and model of thermistor and the
+        temperature range of interest.
+        @param C: Steinhart–Hart coefficients, which vary depending on the type and model of thermistor and the
+        temperature range of interest.
         @param T: the temperature (in kelvins),
         @return:  Resistance of a semiconductor at a given temperature (K).
         """
-        x = 1 / C * (A - 1 / T)  # calculation of the x coefficient
-        y = np.sqrt(pow(B / (3 * C), 3) + pow(x, 2) / 4)  # calculation of the y coefficient
 
-        return np.exp(np.cbrt(y - x / 2) - np.cbrt(y + x / 2))
+        if not args:
+            x = 1 / C * (A - 1 / T)  # calculation of the x coefficient
+            y = np.sqrt(pow(B / (3 * C), 3) + pow(x, 2) / 4)  # calculation of the y coefficient
+            return np.exp(np.cbrt(y - x / 2) - np.cbrt(y + x / 2))
+        elif args[0] == "Plot":
+            T = np.arrange(0, 100, 1)
+            x = 1 / C * (A - 1 / T)  # calculation of the x coefficient
+            y = np.sqrt(pow(B / (3 * C), 3) + pow(x, 2) / 4)  # calculation of the y coefficient
+            R = np.exp(np.cbrt(y - x / 2) - np.cbrt(y + x / 2))
 
     @staticmethod
     def extrinsicSemiconductor(A, T, n):
@@ -120,7 +133,6 @@ class Conductance:
             return sigma * area / length
         if args[0] == "Help":
             wikiUrl = "https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity"
-            table_class = "wikitable"
             response = requests.get(wikiUrl)
             # parse data from the html into a beautifulsoup object
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -161,13 +173,11 @@ class Inductance:
 
     @staticmethod
     def QualityFactor(f, L, R):
-
         omega = 2 * np.pi * f
         return omega * L / R
 
     @staticmethod
     def CornerFrequency(R, L):
-
         return R / (2 * np.pi * L)
 
     @staticmethod
@@ -175,20 +185,21 @@ class Inductance:
         return c.mu0 * pow(N, 2) * Area / length
 
     @staticmethod
-    def singleLayerSolenoid(N, D, l):
+    def singleLayerSolenoid(N, D, length):
         """ The well-known Wheeler's approximation formula for current-sheet model air-core coil.[1, 2]
         This formula gives an error no more than 1% when l is bigger than 0.4 * D.
 
         Reference
         -------------
         [1] Wheeler, Harold A. (September 1942). "Formulas for the skin effect". Proceedings of the I.R.E.: 412–424
-        [2] Wheeler, Harold A. (October 1928). "Simple inductance formulas for radio coils". Proceedings of the I.R.E.: 1398–1400.
+        [2] Wheeler, Harold A. (October 1928). "Simple inductance formulas for radio coils".
+            Proceedings of the I.R.E.: 1398–1400.
         @param N: number of turns
         @param D: diameter in (cm)
-        @param l:  length in  (cm)
+        @param length:  length in  (cm)
         @return: inductance in (muH)
         """
-        return pow(N, 2) * pow(D, 2) / (45 * D + 100 * l)
+        return pow(N, 2) * pow(D, 2) / (45 * D + 100 * length)
 
     @staticmethod
     def coaxialCable(length, b, a):
@@ -196,7 +207,7 @@ class Inductance:
         # a: Inner conductors radius
         # length: Length
         # mu0: permeability of free space
-        return mu0 / (2 * pi) * length * np.ln(b / a)
+        return mu0 / (2 * np.pi) * length * np.ln(b / a)
 
     @staticmethod
     def reactance(omega, L):
@@ -224,20 +235,19 @@ class Capacitance:
     def concentricCylinders(epsilonr, length, R1, R2):
         epsilon = epsilonr * c.epsilon0
 
-        return 2 * c.pi * epsilon * length / ln(R2 / R1)
+        return 2 * np.pi * epsilon * length / np.ln(R2 / R1)
 
     @staticmethod
     def eccentricCylinders(epsilonr, length, R1, R2, distance):
         epsilon = epsilonr * c.epsilon0
 
-        return 2 * c.pi * epsilon * length \
-               / arcosh((pow(R1, 2) + pow(R2, 2) - pow(distance, 2)) / (2 * R1 * R2))
+        return 2 * np.pi * epsilon * length / np.arcosh((pow(R1, 2) + pow(R2, 2) - pow(distance, 2)) / (2 * R1 * R2))
 
     @staticmethod
     def pairOfParallelWires(epsilonr, length, distance, wireRadius):
         epsilon = epsilonr * c.epsilon0
 
-        return c.pi * epsilon * length / arcosh(distance / (2 * wireRadius))
+        return np.pi * epsilon * length / np.arcosh(distance / (2 * wireRadius))
 
 
 class ElectricCircuits:
@@ -255,16 +265,16 @@ class ElectricCircuits:
         :param f: frequency
         :return: power factor, quality factor, resonance angular frequency, impedance
         """
-        pf = R / root(pow(R, 2) + pow(2 * pi * f * L - 1 / (2 * pi * f * C), 2), 2)  # power factor
-        omega = 1 / root(L * C, 2)  # resonance angular frequency
-        Q = root(L / C, 2) / R  # quality factor
-        Z = root(pow(R, 2) + pow(omega * L - 1 / (omega * C), 2), 2)
+        pf = R / np.sqrt(pow(R, 2) + pow(2 * np.i * f * L - 1 / (2 * np.pi * f * C), 2))  # power factor
+        omega = 1 / np.sqrt(L * C)  # resonance angular frequency
+        Q = np.sqrt(L / C) / R  # quality factor
+        Z = np.sqrt(pow(R, 2) + pow(omega * L - 1 / (omega * C), 2))
 
         return pf, Q, omega, Z
 
 
 def rc_circuit(V_in, t, R, C):
-    return V_in * (1 - exp(-t / (R * C)))
+    return V_in * (1 - np.exp(-t / (R * C)))
 
 
 def lorentzForce(q, E, v, B, theta):
@@ -277,7 +287,7 @@ def lorentzForce(q, E, v, B, theta):
     :param theta: The angle between the velocity of the particle and the magnetic field vector (rad)
     :return: Lorentz force (N)
     """
-    return q * E + q * v * B * sin(theta)
+    return q * E + q * v * B * np.sin(theta)
 
 
 def wheatstone(Vin, R1, R2, R3):
@@ -295,7 +305,7 @@ def skinDepth(rho, f, mur):
     :param mur: the relative permeability of the conductor
     :return: the depth of the conductor where the current flows.
     """
-    return root(rho / (c.pi * f * mur * c.mu0), 2)
+    return np.sqrt(rho / (np.pi * f * mur * c.mu0))
 
 
 def timer555(C, R1, R2, *args):
@@ -383,7 +393,7 @@ def diodeEquation(I_0, V, T):
     :param T: absolute temperature (K)
     :return: the net current flowing through the diode (I).
     """
-    return I_0 * (exp(1 * V / (BoltzmannConstant().J_per_K() * T)) - 1)
+    return I_0 * (np.exp(1 * V / (BoltzmannConstant().J_per_K() * T)) - 1)
 
 
 def deltaConnection(array, Z_total):
@@ -467,7 +477,7 @@ class MMF(object):
     def spaceFieldCurveAC(B_1, x, tau_p, f, t, *args):
         omega = 2 * np.pi * f
         if args[0] == "Fundamental":
-            return B_1 * np.cos(x * np.pi / tau_p) * cos(omega * t)
+            return B_1 * np.cos(x * np.pi / tau_p) * np.cos(omega * t)
         if args[1] == "I want it all!":
             return 0  # add infinite sum here !
 
@@ -529,3 +539,61 @@ def ShuntMotorConstruction(P_n, V_n, n):
     h_pa = 0.35 * tau_p + m
 
     control = L_i / tau_p
+
+
+def telegraphersEquation(R, L, C, G, l, x, t):
+    alpha = G / C
+
+    beta = R / L
+
+    c = np.sqrt(1 / (L * C))
+
+    d = (alpha + beta) / 2
+
+    a = 5
+    limit = 100
+    n = 1
+
+    U = np.zeros((1, len(x)))
+
+    Sum = 0
+
+    while n <= limit:
+        omega_n = np.sqrt(pow(n * np.pi * c / l, 2) - 1 / 4 * pow(alpha - beta, 2))
+
+        phi_n = np.arctan(d / omega_n)
+
+        A_n = 2 / (l * np.cos(phi_n)) * np.sin(n * np.pi * a / l)
+
+        u = A_n * np.exp(-d * t) * np.cos(omega_n * t - phi_n) * np.sin(n * np.pi * x / l)
+
+        Sum = Sum + u
+
+        n += 1
+
+    return Sum
+
+
+def delta2wye(R_ab, R_ac, R_bc):
+    R_a = R_ac * R_ab / (R_ac + R_bc + R_bc)
+    R_b = R_ab * R_bc / (R_ac + R_bc + R_bc)
+    R_c = R_bc * R_ac / (R_ac + R_bc + R_bc)
+    return R_a, R_b, R_c
+
+
+def wye2delta(R_a, R_b, R_c):
+    R_ac = (R_a * R_b + R_b * R_c + R_c * R_a) / R_b
+    R_ab = (R_a * R_b + R_b * R_c + R_c * R_a) / R_c
+    R_bc = (R_a * R_b + R_b * R_c + R_c * R_a) / R_a
+    return R_ac, R_ab, R_bc
+
+
+def powerGain(P_out, P_in, *args):
+    if not args:
+        return 10 * np.log10(P_out / P_in)  # dB
+    elif args[0] == 'dB':
+        return 10 * np.log10(P_out / P_in)  # dB
+    elif args[0] == 'nepers':
+        return 0.5 * np.log2(P_out / P_in)  # dB
+    else:
+        raise ValueError("The arguments can either be dB or nepers.")
