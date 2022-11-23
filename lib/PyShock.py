@@ -2,6 +2,8 @@ import numpy as np  # numpy ... cause you know .... numbers and stuff
 import pandas as pd  # library for data analysis and statistics
 import requests  # library to handle requests
 from bs4 import BeautifulSoup  # library to parse HTML documents
+import scipy.signal as sig
+import matplotlib.pyplot as plt
 
 # Constants ------------------------------------------------------------------------------------------------------------
 mu0 = 4 * np.pi * 1.00000000055 * pow(10, -7)  # H/m
@@ -425,10 +427,32 @@ class ElectricCircuits:
         :param f: frequency
         :return: power factor, quality factor, resonance angular frequency, impedance
         """
-        pf = R / np.sqrt(pow(R, 2) + pow(2 * np.i * f * L - 1 / (2 * np.pi * f * C), 2))  # power factor
+        pf = R / np.sqrt(pow(R, 2) + pow(2 * np.pi * f * L - 1 / (2 * np.pi * f * C), 2))  # power factor
         omega = 1 / np.sqrt(L * C)  # resonance angular frequency
         Q = np.sqrt(L / C) / R  # quality factor
         Z = np.sqrt(pow(R, 2) + pow(omega * L - 1 / (omega * C), 2))
+
+        #statespace
+
+        A = [[- R / L, -1 / L], [1 / C, 0]]
+        B = [[- 1 / L], [0]]
+        C = [0, 1]
+        D = [0]
+
+        # Simulation Parameters
+        tstart = 0
+        tstop = 60
+        increment = 0.1
+        t = np.arange(tstart, tstop + 1, increment)
+
+        sys = sig.StateSpace(A, B, C, D)
+        u0 = [0, 0]
+        # Step response for the system
+        t, y, x = sig.lsim(sys,u0, t)
+        x1 = x[:, 0]
+        x2 = x[:, 1]
+        plt.plot(t, x1, t, x2)
+        plt.show()
 
         return pf, Q, omega, Z
 
