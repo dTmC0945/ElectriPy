@@ -892,3 +892,5 @@ def halfBridge(array):
             array[1, i] == 0
 
     return array
+
+
