@@ -30,7 +30,6 @@ def BoltzmannConstant(*args):  # the Boltzmann constant in its various forms
     if args[0] == "Eh/K":
         return 3.166811563 * pow(10, -6)
 
-
 # Unit Converter -------------------------------------------------------------------------------------------------------
 
 def scaleConverter(value: float, scale: str, new_scale: str) -> float:
@@ -38,7 +37,6 @@ def scaleConverter(value: float, scale: str, new_scale: str) -> float:
     # G : Giga , M: Mega, k: kilo, h: hecto, da: deca, '': default, d: deci, c: centi, m: milli, μ: micro, n: nano
     gap = units[scale] - units[new_scale]
     return value * 10 ** gap
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -71,7 +69,6 @@ class Resistance:
         print("----------------------------------------------------------------------")
         print(data.head(n=10))
         print("----------------------------------------------------------------------")
-
 
     @staticmethod
     def createResistance(rho, length, area, *args):
@@ -289,7 +286,6 @@ def Conductance(sigma, length, area, *args):
     else:
         raise ValueError("The argument can only be Help")
 
-
 class Inductance:
     def __int__(self):
         self.init = self
@@ -475,6 +471,9 @@ def lorentzForce(q, E, v, B, theta):
 
 
 def wheatstone(Vin, R1, R2, R3):
+    """A Wheatstone bridge is an electrical circuit used to measure an unknown electrical resistance
+    by balancing two legs of a bridge circuit, one leg of which includes the unknown component"""
+
     Rx = R2 / R1 * R3
     Vout = Vin * (Rx / (R3 + Rx) - R2 / (R1 + R2))
 
