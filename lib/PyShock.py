@@ -6,13 +6,13 @@ import scipy.signal as sig
 import matplotlib.pyplot as plt
 
 # Constants ------------------------------------------------------------------------------------------------------------
-mu0 = 4 * np.pi * 1.00000000055 * pow(10, -7)  # H/m
-epsilon0 = 8.8541878128 * pow(10, -12)  # electric constant (F.m-1)
-c = 299792458  # metres per second (m/s)
-e = 1.602176634 * pow(10, -19)  # the elementary electric charge (C)
-h = 6.62607015 * pow(10, -34)  # the plank constant (J.s)
-N_a = 6.02214076 * pow(10, 23)  # avogadro constant (mol-1)
-
+mu0         = 4 * np.pi * 1.00000000055 * pow(10, -7)   # H/m
+epsilon0    = 8.8541878128 * pow(10, -12)               # electric constant (F.m-1)
+c           = 299792458                                 # metres per second (m/s)
+e           = 1.602176634 * pow(10, -19)                # the elementary electric charge (C)
+h           = 6.62607015 * pow(10, -34)                 # the plank constant (J.s)
+N_a         = 6.02214076 * pow(10, 23)                  # avogadro constant (mol-1)
+# ----------------------------------------------------------------------------------------------------------------------
 
 def BoltzmannConstant(*args):  # the Boltzmann constant in its various forms
     if args[0] == "J/K":
